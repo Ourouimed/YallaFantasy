@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Mail, Lock, Trophy, ArrowRight } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
 
 export default function LoginPage() {
