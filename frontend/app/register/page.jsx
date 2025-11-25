@@ -1,10 +1,32 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock, User } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { register } from "@/store/features/auth/authSlice";
 
 export default function RegisterPage() {
+  const [loading , setLoading] = useState(false)
+  const [registerForm , setRegisterForm] = useState({
+      fullname : '',
+      email : '',
+      password : '',
+      confirmPassword : ''
+    })
+    const dispatch = useDispatch()
+    const handleChange =(e)=>{
+      setRegisterForm(prev => ({...prev , [e.target.id] : e.target.value}))
+    }
+
+    const handleRegister = ()=>{
+        setLoading(true)
+        dispatch(register(registerForm))
+        setLoading(false)
+
+    }
   return (
     <section className="min-h-screen flex items-center justify-center bg-main text-white px-4 py-8 relative overflow-hidden">
       
@@ -29,9 +51,11 @@ export default function RegisterPage() {
               </label>
               <Input
                   icon={User}
-                  id="name"
+                  id="fullname"
                   type="text"
                   placeholder="John Doe"
+                  onChange={handleChange}
+                  value={registerForm.fullname}
                 />
             </div>
 
@@ -45,6 +69,8 @@ export default function RegisterPage() {
                   id="email"
                   type="email"
                   placeholder="coach@example.com"
+                  onChange={handleChange}
+                  value={registerForm.email}
                 />
             </div>
 
@@ -58,6 +84,8 @@ export default function RegisterPage() {
                   id="password"
                   type="password"
                   placeholder="••••••••"
+                  onChange={handleChange}
+                  value={registerForm.password}
                 />
             </div>
 
@@ -71,14 +99,16 @@ export default function RegisterPage() {
                   id="confirmPassword"
                   type="password"
                   placeholder="••••••••"
+                  onChange={handleChange}
+                  value={registerForm.confirmPassword}
                 />
             </div>
           </div>
 
           
           <div className="space-y-4">
-            <Button className="w-full h-12 !bg-third text-black font-bold text-base">
-              Create Account
+            <Button className={`w-full h-12 !bg-third text-black font-bold text-base ${loading && 'opacity-70'}`} disabled={loading} onClick={handleRegister}>
+              {loading? 'Creating...' : 'Create Account'}
             </Button>
             
             

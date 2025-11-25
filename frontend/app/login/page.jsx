@@ -1,10 +1,15 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
+import { useState } from "react";
 
 export default function LoginPage() {
+  const [loginForm , setLoginForm] = useState({
+    
+  })
   return (
     <section className="min-h-screen flex items-center justify-center bg-main text-white px-4 py-8 relative overflow-hidden">
     
