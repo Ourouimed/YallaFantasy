@@ -6,7 +6,7 @@ import { Mail, Lock, User } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { register } from "@/store/features/auth/authSlice";
+import { registerUser } from "@/store/features/auth/authSlice";
 
 export default function RegisterPage() {
   const [loading , setLoading] = useState(false)
@@ -23,7 +23,7 @@ export default function RegisterPage() {
 
     const handleRegister = ()=>{
         setLoading(true)
-        dispatch(register(registerForm))
+        dispatch(registerUser(registerForm))
         setLoading(false)
 
     }
