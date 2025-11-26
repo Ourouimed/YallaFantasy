@@ -1,6 +1,7 @@
 const Auth = require("../models/auth")
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
+const { sendVerificationEmail } = require("../lib/send-email");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 exports.register = async (req , res)=>{
@@ -30,6 +31,9 @@ exports.register = async (req , res)=>{
         jwt.sign({id : user.id , password , email} 
             , JWT_SECRET , { expiresIn : '3d'}
         )
+
+        // send a verification email 
+        await sendVerificationEmail(email)
 
 
         res.status(200).json({message : 'User Created succesfully'})

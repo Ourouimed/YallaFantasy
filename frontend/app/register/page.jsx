@@ -5,30 +5,48 @@ import Input from "@/components/ui/Input";
 import { Mail, Lock, User } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@/store/features/auth/authSlice";
 
 export default function RegisterPage() {
-  const [loading , setLoading] = useState(false)
   const [registerForm , setRegisterForm] = useState({
       fullname : '',
       email : '',
       password : '',
       confirmPassword : ''
     })
+    const [validationErrors , setValidationErrors] = useState({})
     const dispatch = useDispatch()
+    const { isLoading } = useSelector(state => state.auth)
     const handleChange =(e)=>{
       setRegisterForm(prev => ({...prev , [e.target.id] : e.target.value}))
     }
 
-    const handleRegister = ()=>{
-        setLoading(true)
-        dispatch(registerUser(registerForm))
-        setLoading(false)
 
+    const validateForms = ()=>{
+        const newErrors = {}
+        if (!registerForm.email.trim()) newErrors.email = "Email is required";
+        else if (!/^\S+@\S+\.\S+$/.test(registerForm.email)) newErrors.email = "Invalid email address";
+
+        if (!registerForm.fullname.trim()) newErrors.fullname = "full name is required"
+  
+        if (!registerForm.password.trim()) newErrors.password = "Password is required";
+        else if (registerForm.password.length < 6 || registerForm.password.length > 15) newErrors.password = "Password length must be between 6 and 15";
+        if (registerForm.password !== registerForm.confirmPassword) newErrors.confirmPassword = "Passwords do not matches";
+
+        setValidationErrors(newErrors)
+        return Object.keys(newErrors).length === 0
     }
+
+
+    const handleRegister = ()=>{
+      if (!validateForms()) return ;
+      dispatch(registerUser(registerForm))
+    }
+
+    
   return (
-    <section className="min-h-screen flex items-center justify-center bg-main text-white px-4 py-8 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center bg-slate-950 text-white px-4 py-8 relative overflow-hidden">
       
       <div className="w-full max-w-md p-8 rounded-3xl border border-white/10 space-y-8 z-10">
         
@@ -57,6 +75,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   value={registerForm.fullname}
                 />
+                  {validationErrors?.fullname && <p className="text-red-400 text-sm">{validationErrors.fullname}</p>}
             </div>
 
 
@@ -72,6 +91,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   value={registerForm.email}
                 />
+                {validationErrors?.email && <p className="text-red-400 text-sm">{validationErrors.email}</p>}
             </div>
 
 
@@ -87,6 +107,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   value={registerForm.password}
                 />
+                {validationErrors?.password && <p className="text-red-400 text-sm">{validationErrors.password}</p>}
             </div>
 
              
@@ -102,13 +123,14 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   value={registerForm.confirmPassword}
                 />
+                {validationErrors?.confirmPassword && <p className="text-red-400 text-sm">{validationErrors.confirmPassword}</p>}
             </div>
           </div>
 
           
           <div className="space-y-4">
-            <Button className={`w-full h-12 !bg-third text-black font-bold text-base ${loading && 'opacity-70'}`} disabled={loading} onClick={handleRegister}>
-              {loading? 'Creating...' : 'Create Account'}
+            <Button className={`w-full h-12 !bg-third text-black font-bold text-base ${isLoading && 'opacity-70'}`} disabled={isLoading} onClick={handleRegister}>
+              {isLoading? 'Creating...' : 'Create Account'}
             </Button>
             
             
@@ -117,7 +139,7 @@ export default function RegisterPage() {
                 <span className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-main px-2 text-gray-300">
+                <span className="bg-slate-950 px-2 text-gray-300">
                   Or continue with
                 </span>
               </div>

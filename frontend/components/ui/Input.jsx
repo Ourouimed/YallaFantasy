@@ -1,4 +1,4 @@
-export default function Input ({icon : Icon , ...props}){
+export default function Input ({icon : Icon , className , ...props}){
     return <div className="w-full border flex items-center gap-1 border-white/20 bg-white/5 p-3 rounded-lg focus-within:border-third">
         {Icon && (
           <div className="mr-3 text-gray-300 transition-colors group-focus-within:text-third">
@@ -7,7 +7,7 @@ export default function Input ({icon : Icon , ...props}){
         )}
         <input
             {...props}
-            className="outline-none focus:border-third transition"
+            className={`outline-none focus:border-third transition ${className}`}
             />
     </div>
 }
