@@ -10,12 +10,12 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-async function sendVerificationEmail(to) {
+async function sendVerificationEmail(id , to) {
     const htmlContent = `
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
             <h2 style="color: #333;">Welcome to Yalla Fantasy!</h2>
             <p>Thank you for signing up. Please verify your email address by clicking the button below:</p>
-            <a href="" 
+            <a href="${process.env.ALLOW_CORS_URL}/" 
                style="display: inline-block; padding: 10px 20px; margin: 15px 0; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;"
                target="_blank"
             >

@@ -5,7 +5,8 @@ import Input from "@/components/ui/Input";
 import { Mail, Lock } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "@/store/features/auth/authSlice";
 
 export default function LoginPage() {
   const [loginForm , setLoginForm] = useState({
@@ -14,6 +15,7 @@ export default function LoginPage() {
   })
   const [validationErrors , setValidationErrors] = useState({})
   const { isLoading } = useSelector(state => state.auth)
+  const dispatch = useDispatch()
   const handleChange =(e)=>{
       setLoginForm(prev => ({...prev , [e.target.id] : e.target.value}))
   }
@@ -29,6 +31,7 @@ export default function LoginPage() {
     }
     const handleLogin = ()=>{
       if (!validateForms()) return ;
+      dispatch(loginUser(loginForm))
     }
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
