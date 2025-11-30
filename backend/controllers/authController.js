@@ -88,6 +88,28 @@ exports.login = async (req , res) =>{
 }
 
 exports.verfifyEmail = async (req , res)=>{
-    const { id } = req.params
-    console.log(id)
+    const { id } = req.query
+    try {
+        if (!id){
+            return res.status(400).json({error : 'No id provided'})
+        }
+
+        // Check user Existance
+        const [user] = await Auth.getUserById(id)
+        if (!user){
+            return res.status(401).json({error : 'Invalid credentials'})
+        }
+
+        await Auth.verifyEmail(id)
+        return res.status(201).json({message : 'Email verified successfully'})
+    }
+   
+
+
+    catch (err){
+        console.log(err);
+        res.status(500).json({error : 'Internal server error'})
+    }
+
+
 }

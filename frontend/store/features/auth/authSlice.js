@@ -10,7 +10,7 @@ const initialState = {
 
 };
 
-export const registerUser = createAsyncThunk('/api/auth/register' , async (user , thunkAPI)=>{
+export const registerUser = createAsyncThunk('auth/register' , async (user , thunkAPI)=>{
   try {
     return await authService.register(user)
   }
@@ -20,9 +20,19 @@ export const registerUser = createAsyncThunk('/api/auth/register' , async (user 
 })
 
 
-export const loginUser = createAsyncThunk('/api/auth/login' , async (user , thunkAPI)=>{
+export const loginUser = createAsyncThunk('auth/login' , async (user , thunkAPI)=>{
   try {
     return await authService.login(user)
+  }
+  catch (err){
+    return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+  }
+})
+
+
+export const verifyEmail = createAsyncThunk('auth/verify-email' , async (id , thunkAPI)=>{
+  try {
+    return await authService.verifyEmail(id)
   }
   catch (err){
     return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
@@ -63,6 +73,21 @@ export const authSlice = createSlice({
       console.log(action.payload)
     })
     .addCase(loginUser.rejected, (state, action) => {
+      state.isLoading = false;
+      state.status = false
+      state.statusMsg = action.payload
+    })
+
+
+    .addCase(verifyEmail.pending, (state) => {
+      state.isLoading = true;
+    })
+    .addCase(verifyEmail.fulfilled, (state, action) => {
+      state.isLoading = false;
+      console.log('Fullfilled')
+      console.log(action.payload)
+    })
+    .addCase(verifyEmail.rejected, (state, action) => {
       state.isLoading = false;
       state.status = false
       state.statusMsg = action.payload
