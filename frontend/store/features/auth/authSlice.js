@@ -7,7 +7,7 @@ const initialState = {
   isLoading : false ,
   status : null ,
   statusMsg : null ,
-
+  loggedIn : false
 };
 
 export const registerUser = createAsyncThunk('auth/register' , async (user , thunkAPI)=>{
@@ -39,12 +39,28 @@ export const verifyEmail = createAsyncThunk('auth/verify-email' , async (id , th
   }
 })
 
+export const verifySession = createAsyncThunk('auth/verify-session' , async (_ , thunkAPI)=>{
+  try {
+    return await authService.verifySession()
+  }
+  catch (err){
+    return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+  }
+})
+
+export const logout = createAsyncThunk('auth/logout' , async (_ , thunkAPI)=>{
+  try {
+    return await authService.logout()
+  }
+  catch (err){
+    return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+  }
+})
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {
-    
-  },
+  reducers: {},
 
   extraReducers: (builder) => {
     builder
@@ -54,13 +70,15 @@ export const authSlice = createSlice({
     })
     .addCase(registerUser.fulfilled, (state, action) => {
       state.isLoading = false;
-      console.log('Fullfilled')
       console.log(action.payload)
     })
     .addCase(registerUser.rejected, (state, action) => {
       state.isLoading = false;
       state.status = false
       state.statusMsg = action.payload
+      state.user = null
+      state.loggedIn = false
+      console.log(action.payload)
     })
 
     // Login 
@@ -69,29 +87,70 @@ export const authSlice = createSlice({
     })
     .addCase(loginUser.fulfilled, (state, action) => {
       state.isLoading = false;
-      console.log('Fullfilled')
+      state.user = action.payload.data
+      state.loggedIn = true
       console.log(action.payload)
     })
     .addCase(loginUser.rejected, (state, action) => {
       state.isLoading = false;
       state.status = false
       state.statusMsg = action.payload
+      state.user = null
+      state.loggedIn = false
     })
 
-
+    // verify email
     .addCase(verifyEmail.pending, (state) => {
       state.isLoading = true;
     })
     .addCase(verifyEmail.fulfilled, (state, action) => {
       state.isLoading = false;
       console.log('Fullfilled')
+      state.user = action.payload.data
       console.log(action.payload)
     })
     .addCase(verifyEmail.rejected, (state, action) => {
       state.isLoading = false;
       state.status = false
       state.statusMsg = action.payload
-    });
+    })
+
+
+    // verify Session
+    .addCase(verifySession.pending, (state) => {
+      state.isLoading = true
+    })
+    .addCase(verifySession.fulfilled, (state, action) => {
+      state.isLoading = false;
+      console.log(action.payload)
+      state.user = action.payload.data
+      state.loggedIn = true
+    })
+    .addCase(verifySession.rejected, (state, action) => {
+      state.isLoading = false;
+      state.status = false
+      state.statusMsg = action.payload
+      state.user = null
+      state.loggedIn = false
+    })
+
+    // Log out 
+    .addCase(logout.pending, (state) => {
+      state.isLoading = true
+    })
+    .addCase(logout.fulfilled, (state, action) => {
+      state.isLoading = false;
+      console.log(action.payload)
+      state.user = null
+      state.loggedIn = false
+    })
+    .addCase(logout.rejected, (state, action) => {
+      state.isLoading = false;
+      state.status = false
+      state.statusMsg = action.payload
+      state.user = null
+      state.loggedIn = false
+    })
 }
 
 });

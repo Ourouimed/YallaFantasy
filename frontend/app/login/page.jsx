@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "@/store/features/auth/authSlice";
+import { loginUser, verifySession } from "@/store/features/auth/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [loginForm , setLoginForm] = useState({
@@ -14,8 +15,10 @@ export default function LoginPage() {
     password : ''
   })
   const [validationErrors , setValidationErrors] = useState({})
-  const { isLoading } = useSelector(state => state.auth)
+  const { isLoading , user , loggedIn} = useSelector(state => state.auth)
   const dispatch = useDispatch()
+  const router = useRouter()
+
   const handleChange =(e)=>{
       setLoginForm(prev => ({...prev , [e.target.id] : e.target.value}))
   }
@@ -29,10 +32,22 @@ export default function LoginPage() {
         setValidationErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
+  
     const handleLogin = ()=>{
       if (!validateForms()) return ;
       dispatch(loginUser(loginForm))
     }
+    
+    useEffect(()=>{
+        dispatch(verifySession())
+    } , [])
+
+    useEffect(()=>{
+      if(loggedIn){
+        router.push('/dashboard')
+      }
+    } , [loggedIn , router])
+
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
       <div className="w-full max-w-md p-8 rounded-3xl border border-gray-300 space-y-8 z-10 bg-white">

@@ -4,8 +4,16 @@ export const menu = [
         name : 'Home'
     },
     {
-        url : '/table',
-        name : 'Table'
+        url : '/dashboard',
+        name : 'Play'
+    },
+    {
+        url : '/rules',
+        name : 'How to play'
+    },
+    {
+        url : '/groups',
+        name : 'Groups'
     },
     {
         url : '/matches',

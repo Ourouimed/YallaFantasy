@@ -68,18 +68,19 @@ exports.login = async (req , res) =>{
         }
 
         // Create a jwt token
-        const payload = { id : user.id}
+        const payload = { id : user.id , email : user.email , fullname : user.fullname}
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
         // Set the token in an HttpOnly cookie
-        res.cookie('jwt', token, {
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production', 
-            sameSite: 'strict', 
-            maxAge: 3600000 
-        });
-
-        return res.status(201).json({message : 'Login successfull'})
+        return res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
+            maxAge: 3600000, 
+        }).json({message : 'Login successfull' , data : {
+            email : user.email , 
+            fullname : user.fullname
+        }})
     }
     catch (err){
         console.log(err);
@@ -112,4 +113,29 @@ exports.verfifyEmail = async (req , res)=>{
     }
 
 
+}
+
+exports.verfifySession = async (req, res)=>{
+    const token = req.cookies.token
+    if (!token){
+        return res.status(401).json({error : 'Session expired or invalid. Please login again.'})
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        res.json({ message : 'Valide session' , data : {
+            fullname: decoded.fullname, 
+            email: decoded.email 
+        }});
+    } catch (err) {
+        return res.status(401).json({error: 'Session expired or invalid. Please login again.',});
+    }
+}
+
+exports.logout = async (req , res)=>{
+    return res.clearCookie('token' , {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'lax',
+        }).json({message : 'Logout successfull' , })
 }
