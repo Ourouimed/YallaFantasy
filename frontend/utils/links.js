@@ -1,4 +1,4 @@
-import { LayoutDashboard } from "lucide-react"
+import { Flag, LayoutDashboard, Settings, User, Users } from "lucide-react"
 
 export const menu = [
     {
@@ -31,21 +31,21 @@ export const adminMenu = [
     {
         name : 'Dashboard',
         url : '/dashboard',
-        icon : LayoutDashboard
+        icon : Users
     },
     {
-        name : 'Dashboard2',
-        url : '/dashboard',
-        icon : LayoutDashboard
+        name : 'Players',
+        url : '/dashboard/players',
+        icon : User
     },
     {
-        name : 'Dashboard3',
-        url : '/dashboard',
-        icon : LayoutDashboard
+        name : 'National teams',
+        url : '/dashboard/teams',
+        icon : Flag
     },
     {
-        name : 'Dashboard4',
-        url : '/dashboard',
-        icon : LayoutDashboard
-    }
+        name : 'Settings',
+        url : '/dashboard/settings',
+        icon : Settings
+    },
 ]

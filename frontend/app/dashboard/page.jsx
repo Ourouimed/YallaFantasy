@@ -1,6 +1,5 @@
 "use client";
 import DashboardLayout from "@/components/dashboard/dashboardLayout";
-import Header from "@/components/sections/Header";
 import { verifySession } from "@/store/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -28,7 +27,8 @@ export default function Dashboard (){
     
     return <>
         <DashboardLayout>
-          <h1>Hello world</h1>
+          <h1 className="text-2xl font-semibold">Welcome {user?.fullname}</h1>
+          <p className="text-gray-700">yallaFantasy Admin dashboard</p>
         </DashboardLayout>
     </>
 }

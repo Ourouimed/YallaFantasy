@@ -1,19 +1,45 @@
+// Sidebar.jsx (Improved)
 import { adminMenu } from "@/utils/links";
-import { Button } from "../ui/Button";
+import Link from 'next/link'; 
+import { usePathname } from 'next/navigation'; 
 
-export default function Sidebar(){
-    return <>
-        <div className="h-full border-r border-gray-300 flex flex-col justify-between p-4">
-            <div className="space-y-4">
-                <h3 className="font-semibold text-2xl">Yalla<span className="text-main">Fantasy</span></h3>
-                <nav>
+const NavItem = ({ name, url, icon: Icon }) => {
+    const currentPath = usePathname(); 
+
+    return (
+        <li key={name}>
+            <Link href={url} className={`flex items-center gap-3 p-2 rounded-lg transition duration-300 text-black hover:bg-main hover:text-white font-semibold w-full text-sm`}>
+                <Icon size={20} />
+                <span>{name}</span>
+            </Link>
+        </li>
+    );
+};
+
+export default function Sidebar() {
+    return (
+        <div className="h-full w-64 border-r border-gray-200 bg- flex flex-col justify-between p-4 shadow-lg">
+            
+            
+            <div className="space-y-8"> 
+                
+                <div className="py-2">
+                    <h3 className="font-bold text-3xl text-black">
+                        Yalla<span className="text-third">Fantasy</span>
+                    </h3>
+                </div>
+
+               
+                <nav className="space-y-1">
+                    <p className="text-xs uppercase tracking-wider text-gray-500 font-medium mb-3">Menu</p>
                     <ul className="space-y-1">
-                        {adminMenu.map(({name , url , icon : Icon}) => <li key={name}>
-                            <Button isLink href={url} className='text-sm justify-start w-full !bg-black text-white'><Icon size={22}/> {name}</Button>
-                        </li>)}
+                        {adminMenu.map((item) => (
+                            <NavItem key={item.name} {...item} />
+                        ))}
                     </ul>
                 </nav>
             </div>
+
         </div>
-    </>
+    );
 }
