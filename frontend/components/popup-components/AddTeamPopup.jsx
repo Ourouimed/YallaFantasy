@@ -2,8 +2,10 @@
 import { useState } from "react";
 import Input from "../ui/Input";
 import Select from "../ui/Select";
-import axios from "axios";
 import Button from "../ui/Button";
+import { useDispatch, useSelector } from "react-redux";
+import { createTeam } from "@/store/features/teams/teamsSlice";
+import { closePopup } from "@/store/features/popup/popupSlice";
 
 export default function AddTeamPopup() {
   const [team, setTeam] = useState({
@@ -13,6 +15,9 @@ export default function AddTeamPopup() {
   });
 
   const [preview, setPreview] = useState(null); 
+
+  const dispatch = useDispatch()
+  const { isLoading } = useSelector(state => state.teams)
 
   // Group options
   const options = () => {
@@ -34,16 +39,28 @@ export default function AddTeamPopup() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setTeam((prev) => ({ ...prev, flag: file }));
-    setPreview(URL.createObjectURL(file)); // show preview
+    setPreview(URL.createObjectURL(file)); 
   };
 
   const handleCreateTeam = async () => {
-    const formData = new FormData();
-    formData.append("teamName", team.teamName);
-    formData.append("group", team.group);
-    if (team.flag) formData.append("flag", team.flag);
+    try {
+        const formData = new FormData();
+        formData.append("teamName", team.teamName);
+        formData.append("group", team.group);
+        if (team.flag) formData.append("flag", team.flag);
+        try {
+            await dispatch(createTeam(formData)).unwrap(); 
+            setPreview(null);
+            setTeam({ group: "", teamName: "", flag: null });
+            dispatch(closePopup());
+        } catch {
+           
+        }
 
-    
+    }
+    catch {
+        
+    }
   };
 
   return (
@@ -116,7 +133,7 @@ export default function AddTeamPopup() {
       
 
       <div className="flex justify-end">
-        <Button onClick={handleCreateTeam} className='!bg-black text-white'>Create Team</Button>
+        <Button disabled={isLoading} onClick={handleCreateTeam} className={`!bg-black text-white ${isLoading && 'opacity-70'}`}>{isLoading ? 'Creating...' : 'Create Team'}</Button>
       </div>
     </div>
   );

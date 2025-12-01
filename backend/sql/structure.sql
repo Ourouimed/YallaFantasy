@@ -12,8 +12,9 @@ CREATE TABLE users (
 
 
 -- National Team Structure 
-CREATE TABLE team (
+CREATE TABLE teams (
+    team_id varchar(50) PRIMARY KEY,
     team_name varchar(50),
-    group varchar(10), 
+    group_num varchar(10), 
     flag varchar(100)
-)
+);
