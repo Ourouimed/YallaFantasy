@@ -1,3 +1,4 @@
+-- User Strcture 
 CREATE TABLE users (
     id CHAR(36) PRIMARY KEY,
     fullname VARCHAR(50) NOT NULL,
@@ -8,3 +9,11 @@ CREATE TABLE users (
     email_verified_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- National Team Structure 
+CREATE TABLE team (
+    team_name varchar(50),
+    group varchar(10), 
+    flag varchar(100)
+)
