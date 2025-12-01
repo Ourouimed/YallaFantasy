@@ -1,6 +1,6 @@
 "use client";
 import DashboardLayout from "@/components/dashboard/dashboardLayout";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 import { usePopup } from "@/hooks/usePopup";
 import { Plus } from "lucide-react";
 

@@ -7,7 +7,7 @@ export default function Input ({icon : Icon , className , ...props}){
         )}
         <input
             {...props}
-            className={`outline-none focus:border-third transition ${className}`}
+            className={`outline-none focus:border-third transition w-full ${className}`}
             />
     </div>
 }

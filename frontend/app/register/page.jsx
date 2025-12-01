@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Button } from "@/components/ui/Button";
+import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock, User } from "lucide-react";
 import GoogleIcon from "@/components/icons/google";

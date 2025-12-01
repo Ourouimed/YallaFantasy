@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { menu } from "@/utils/links";
-import { Button } from "../ui/Button";
+import Button from "../ui/Button";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";

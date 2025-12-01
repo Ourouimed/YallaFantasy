@@ -1,6 +1,6 @@
 'use client';
 import { X } from "lucide-react";
-import { Button } from "./Button";
+import Button from "./Button";
 import { useDispatch, useSelector } from "react-redux";
 import { closePopup } from "@/store/features/popup/popupSlice";
 import * as Components from "@/components/popup-components";
@@ -12,7 +12,7 @@ export default function PopupModal() {
   const ref = useRef();
   const Component = component ? Components[component] : null;
 
-  // Close popup on outside click
+  // Close popup on outside click or ESC
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -36,15 +36,24 @@ export default function PopupModal() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed z-10 h-screen w-full top-0 left-0 bg-black/70 flex items-center justify-center p-5">
-      <div ref={ref} className="w-full max-w-md max-h-screen bg-white rounded-md shadow-sm overflow-y-auto">
-        <div className="p-3 border-b border-gray-300 flex items-center justify-between">
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 overflow-y-auto">
+      <div
+        ref={ref}
+        className="w-full max-w-md bg-white rounded-md shadow-lg flex flex-col max-h-[90vh] overflow-hidden"
+      >
+        
+        <div className="flex items-center justify-between p-4 border-b border-gray-300">
           <h3 className="text-xl font-semibold">{title}</h3>
-          <Button onClick={() => dispatch(closePopup())} className='hover:bg-gray-300 aspect-square !p-2'>
+          <Button
+            onClick={() => dispatch(closePopup())}
+            className="hover:bg-gray-200 aspect-square !p-2 rounded"
+          >
             <X size={20} />
           </Button>
         </div>
-        <div className="p-3">
+
+        
+        <div className="p-4 overflow-y-auto flex-1">
           {Component ? <Component {...props} /> : null}
         </div>
       </div>
