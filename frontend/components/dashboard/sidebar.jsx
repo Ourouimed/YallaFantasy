@@ -1,14 +1,15 @@
-// Sidebar.jsx (Improved)
+"use client";
 import { adminMenu } from "@/utils/links";
 import Link from 'next/link'; 
 import { usePathname } from 'next/navigation'; 
 
 const NavItem = ({ name, url, icon: Icon }) => {
     const currentPath = usePathname(); 
+    console.log(currentPath)
 
     return (
         <li key={name}>
-            <Link href={url} className={`flex items-center gap-3 p-2 rounded-lg transition duration-300 text-black hover:bg-main hover:text-white font-semibold w-full text-sm`}>
+            <Link href={url} className={`flex items-center gap-3 p-2 rounded-lg transition duration-300 text-black hover:bg-main ${url === currentPath && 'bg-main text-white'} hover:text-white font-semibold w-full text-sm`}>
                 <Icon size={20} />
                 <span>{name}</span>
             </Link>

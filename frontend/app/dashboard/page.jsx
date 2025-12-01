@@ -27,8 +27,8 @@ export default function Dashboard (){
     
     return <>
         <DashboardLayout>
-          <h1 className="text-2xl font-semibold">Welcome {user?.fullname}</h1>
-          <p className="text-gray-700">yallaFantasy Admin dashboard</p>
+          <h1 className="text-3xl font-bold">Admin dashboard</h1>
+          <p className="text-gray-700">Welcome back admin , {user?.fullname}</p>
         </DashboardLayout>
     </>
 }
