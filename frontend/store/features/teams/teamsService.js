@@ -8,6 +8,13 @@ const create = async (data)=>{
     return respone.data
 }
 
+const update = async (id , data)=>{
+    const respone = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/teams/update/${id}` , data , {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+    return respone.data
+}
+
 
 const getAllteams = async ()=>{
     const respone = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/teams`)
@@ -20,4 +27,4 @@ const deleteByid = async (id)=>{
     return respone.data
 }
 
-export const teamsService = { create , getAllteams , deleteByid}
+export const teamsService = { create , update , getAllteams , deleteByid}

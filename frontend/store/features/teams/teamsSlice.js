@@ -17,6 +17,17 @@ export const createTeam = createAsyncThunk('teams/create' , async (team , thunkA
 })
 
 
+export const updateTeam = createAsyncThunk('teams/update' , async (team , thunkAPI)=>{
+    try {
+      console.log(team)
+        return await teamsService.update(team.id , team.formData)
+    }
+    catch (err){
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
+
 export const getAllTeams = createAsyncThunk('teams/get' , async (_ , thunkAPI)=>{
     try {
         return await teamsService.getAllteams()
@@ -56,7 +67,22 @@ export const teamsSlice = createSlice({
           state.isLoading = false;
           state.status = false
           state.statusMsg = action.payload
-          state.teams = null
+          console.log(action.payload)
+        })
+
+        // update Team
+        .addCase(updateTeam.pending, (state) => {
+          state.isLoading = true;
+        })
+        .addCase(updateTeam.fulfilled, (state, action) => {
+          state.isLoading = false;
+          state.teams.push(action.payload.team)
+          console.log(action.payload)
+        })
+        .addCase(updateTeam.rejected, (state, action) => {
+          state.isLoading = false;
+          state.status = false
+          state.statusMsg = action.payload
           console.log(action.payload)
         })
         // get all Teams

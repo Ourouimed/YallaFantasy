@@ -10,6 +10,7 @@ const upload = multer({ storage });
 router.get('/' , teamController.getAllTeams)
 router.post('/create' , upload.single("flag") , teamController.create)
 router.delete('/delete' , teamController.delete)
+router.put('/update/:id' , upload.single("flag") , teamController.update)
 
 
-module.exports = router
+module.exports = router 
