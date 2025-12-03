@@ -4,10 +4,10 @@ import authService from "./authService";
 
 const initialState = {
   user: null ,
-  isLoading : false ,
+  loggedIn : false ,
+  isLoading : true ,
   status : null ,
   statusMsg : null ,
-  loggedIn : false
 };
 
 export const registerUser = createAsyncThunk('auth/register' , async (user , thunkAPI)=>{
@@ -70,6 +70,8 @@ export const authSlice = createSlice({
     })
     .addCase(registerUser.fulfilled, (state, action) => {
       state.isLoading = false;
+      state.status = true
+      state.statusMsg = action.payload.message
       console.log(action.payload)
     })
     .addCase(registerUser.rejected, (state, action) => {
@@ -77,7 +79,6 @@ export const authSlice = createSlice({
       state.status = false
       state.statusMsg = action.payload
       state.user = null
-      state.loggedIn = false
       console.log(action.payload)
     })
 
@@ -88,6 +89,8 @@ export const authSlice = createSlice({
     .addCase(loginUser.fulfilled, (state, action) => {
       state.isLoading = false;
       state.user = action.payload.data
+      state.status = true
+      state.statusMsg = action.payload.message
       state.loggedIn = true
       console.log(action.payload)
     })
@@ -105,8 +108,8 @@ export const authSlice = createSlice({
     })
     .addCase(verifyEmail.fulfilled, (state, action) => {
       state.isLoading = false;
-      console.log('Fullfilled')
-      state.user = action.payload.data
+      state.status = true
+      state.statusMsg = action.payload.message
       console.log(action.payload)
     })
     .addCase(verifyEmail.rejected, (state, action) => {
@@ -124,6 +127,8 @@ export const authSlice = createSlice({
       state.isLoading = false;
       console.log(action.payload)
       state.user = action.payload.data
+      state.status = true
+      state.statusMsg = action.payload.message
       state.loggedIn = true
     })
     .addCase(verifySession.rejected, (state, action) => {
@@ -143,6 +148,8 @@ export const authSlice = createSlice({
       console.log(action.payload)
       state.user = null
       state.loggedIn = false
+      state.status = true
+      state.statusMsg = action.payload
     })
     .addCase(logout.rejected, (state, action) => {
       state.isLoading = false;

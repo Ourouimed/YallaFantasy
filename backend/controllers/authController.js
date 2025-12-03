@@ -68,7 +68,7 @@ exports.login = async (req , res) =>{
         }
 
         // Create a jwt token
-        const payload = { id : user.id , email : user.email , fullname : user.fullname}
+        const payload = { id : user.id , email : user.email , fullname : user.fullname , role : user.role}
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
         // Set the token in an HttpOnly cookie
@@ -79,7 +79,8 @@ exports.login = async (req , res) =>{
             maxAge: 3600000, 
         }).json({message : 'Login successfull' , data : {
             email : user.email , 
-            fullname : user.fullname
+            fullname : user.fullname,
+            role : user.role
         }})
     }
     catch (err){
@@ -123,9 +124,12 @@ exports.verfifySession = async (req, res)=>{
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
+        const [user] = await Auth.getUserById(decoded.id)
+        if (!user) return res.status(401).json({error : 'Session expired or invalid. Please login again.'})
         res.json({ message : 'Valide session' , data : {
-            fullname: decoded.fullname, 
-            email: decoded.email 
+            fullname: user.fullname, 
+            email: user.email ,
+            role : user.role
         }});
     } catch (err) {
         return res.status(401).json({error: 'Session expired or invalid. Please login again.',});

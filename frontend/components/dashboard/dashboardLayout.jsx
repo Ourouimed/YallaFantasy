@@ -1,12 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./sidebar";
 import Button from "../ui/Button";
 import { Menu, X } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { verifySession } from "@/store/features/auth/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }) {
-  const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const dispatch = useDispatch()
+    const router = useRouter()
+    const { isLoading , user } = useSelector(state => state.auth)
+    useEffect(()=>{
+        dispatch(verifySession())
+    } , [])
 
+    useEffect(()=>{
+      if(!isLoading && !user){
+        router.push('/login')
+      }
+      if (user && user?.role !== 'admin') router.push('/play')
+    } , [user , router , isLoading] )
   return (
     <div className="flex h-screen">
       <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />

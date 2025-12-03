@@ -6,24 +6,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux"
 
 export default function Dashboard (){
-    const dispatch = useDispatch()
-    const router = useRouter()
-    const { user , isLoading , loggedIn} = useSelector(state => state.auth)
-    useEffect(()=>{
-        dispatch(verifySession())
-    } , [])
-
-    useEffect(()=>{
-      if(!loggedIn && !isLoading){
-        router.push('/login')
-      }
-    } , [loggedIn , router , isLoading] )
-
-    if (isLoading) {
-        return <div>Loading...</div>; 
-    }
-
-    if (!user) null
+    const { user , isLoading } = useSelector(state => state.auth)
     
     return <>
         <DashboardLayout>

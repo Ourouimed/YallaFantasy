@@ -15,7 +15,7 @@ export default function LoginPage() {
     password : ''
   })
   const [validationErrors , setValidationErrors] = useState({})
-  const { isLoading , user , loggedIn} = useSelector(state => state.auth)
+  const { isLoading , user} = useSelector(state => state.auth)
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -43,10 +43,12 @@ export default function LoginPage() {
     } , [])
 
     useEffect(()=>{
-      if(loggedIn){
-        router.push('/dashboard')
+      if(user){
+        if (user.role === 'admin')  router.push('/dashboard')
+        else  router.push('/play')
+       
       }
-    } , [loggedIn , router])
+    } , [user , router])
 
   return (
     <section className="min-h-screen flex items-center justify-center px-4 py-8 relative overflow-hidden">
