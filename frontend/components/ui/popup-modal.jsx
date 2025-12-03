@@ -1,14 +1,14 @@
 'use client';
 import { X } from "lucide-react";
 import Button from "./Button";
-import { useDispatch, useSelector } from "react-redux";
-import { closePopup } from "@/store/features/popup/popupSlice";
+import { useSelector } from "react-redux";
 import * as Components from "@/components/popup-components";
 import { useEffect, useRef } from "react";
+import { usePopup } from "@/hooks/usePopup";
 
 export default function PopupModal() {
   const { title, component, isOpen, props } = useSelector(state => state.popup);
-  const dispatch = useDispatch();
+  const { closePopup } = usePopup()
   const ref = useRef();
   const Component = component ? Components[component] : null;
 
@@ -16,12 +16,12 @@ export default function PopupModal() {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
-        dispatch(closePopup());
+        closePopup();
       }
     };
 
     const handleEsc = (e) => {
-      if (e.key === "Escape") dispatch(closePopup());
+      if (e.key === "Escape") closePopup();
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -31,7 +31,7 @@ export default function PopupModal() {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEsc);
     };
-  }, [dispatch]);
+  }, [closePopup]);
 
   if (!isOpen) return null;
 
@@ -45,7 +45,7 @@ export default function PopupModal() {
         <div className="flex items-center justify-between p-4 border-b border-gray-300">
           <h3 className="text-xl font-semibold">{title}</h3>
           <Button
-            onClick={() => dispatch(closePopup())}
+            onClick={() => closePopup()}
             className="hover:bg-gray-200 aspect-square !p-2 rounded"
           >
             <X size={20} />

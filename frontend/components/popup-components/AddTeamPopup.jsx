@@ -5,7 +5,7 @@ import Select from "../ui/Select";
 import Button from "../ui/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { createTeam } from "@/store/features/teams/teamsSlice";
-import { closePopup } from "@/store/features/popup/popupSlice";
+import { usePopup } from "@/hooks/usePopup";
 
 export default function AddTeamPopup() {
   const [team, setTeam] = useState({
@@ -15,6 +15,7 @@ export default function AddTeamPopup() {
   });
 
   const [preview, setPreview] = useState(null); 
+  const { closePopup } = usePopup()
 
   const dispatch = useDispatch()
   const { isLoading } = useSelector(state => state.teams)
@@ -52,7 +53,7 @@ export default function AddTeamPopup() {
             await dispatch(createTeam(formData)).unwrap(); 
             setPreview(null);
             setTeam({ group: "", teamName: "", flag: null });
-            dispatch(closePopup());
+            closePopup();
         } catch {
            
         }

@@ -7,6 +7,9 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+router.get('/' , teamController.getAllTeams)
 router.post('/create' , upload.single("flag") , teamController.create)
+router.delete('/delete' , teamController.delete)
+
 
 module.exports = router

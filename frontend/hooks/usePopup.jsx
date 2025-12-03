@@ -1,5 +1,5 @@
 "use client";
-import { openPopup } from "@/store/features/popup/popupSlice"
+import { closePopup, openPopup } from "@/store/features/popup/popupSlice"
 import { useDispatch } from "react-redux"
 
 export const usePopup = () => {
@@ -8,6 +8,9 @@ export const usePopup = () => {
     return {
         openPopup: ({ title, component, props }) => {
             dispatch(openPopup({ title, component, props }))
+        },
+        closePopup: () => {
+            dispatch(closePopup())
         }
     }
 }
