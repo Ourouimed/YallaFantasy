@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/dashboard/dashboardLayout";
 import Button from "@/components/ui/Button";
 import Table from "@/components/ui/table";
 import { usePopup } from "@/hooks/usePopup";
+import { useToast } from "@/hooks/useToast";
 import { getAllTeams } from "@/store/features/teams/teamsSlice";
 import { Edit, Plus, Trash } from "lucide-react";
 import { useEffect } from "react";
@@ -11,6 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 export default function TeamsPage(){
     const { openPopup } = usePopup()
     const dispatch = useDispatch()
+
+    const { addToast } = useToast()
     const { isLoading , teams } = useSelector(state => state.teams)
     useEffect(() => {
         const fetchTeams = async () => {
@@ -63,6 +66,9 @@ export default function TeamsPage(){
                     />
 
                 )}
+                <Button onClick={()=>{
+                    addToast({message : 'Hello' , type : 'success'})
+                }}>Test Toast</Button>
             </div>
         </div>
     </DashboardLayout>
