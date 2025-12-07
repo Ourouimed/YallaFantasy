@@ -6,6 +6,7 @@ export default function Input ({icon : Icon , className , ...props}){
           </div>
         )}
         <input
+            value={props.value ?? ""}
             {...props}
             className={`outline-none focus:border-third transition w-full ${className}`}
             />

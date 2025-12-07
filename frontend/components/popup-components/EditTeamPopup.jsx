@@ -28,7 +28,7 @@ export default function EditTeamPopup({team}) {
   // Group options
   const options = () => {
     const opts = [];
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 1; i <= 6; i++) {
       opts.push({ value: `Group${i}`, label: `Group${i}` });
     }
     return opts;
@@ -55,7 +55,7 @@ export default function EditTeamPopup({team}) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setTeamToEdit((prev) => ({ ...prev, flag: file }));
-    setPreview(URL.createObjectURL(file)); 
+    if (file) setPreview(URL.createObjectURL(file)); 
   };
 
   const handleUpdateTeam = async () => {
@@ -77,8 +77,9 @@ export default function EditTeamPopup({team}) {
         }
 
     }
-    catch {
-        
+    catch (err) {
+        console.log(err)
+        toast.error(err || 'Unknown error')
     }
   };
 

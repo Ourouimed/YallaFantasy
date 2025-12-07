@@ -26,7 +26,7 @@ export default function AddTeamPopup() {
   // Group options
   const options = () => {
     const opts = [];
-    for (let i = 1; i <= 12; i++) {
+    for (let i = 1; i <= 6; i++) {
       opts.push({ value: `Group${i}`, label: `Group${i}` });
     }
     return opts;
@@ -43,7 +43,7 @@ export default function AddTeamPopup() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setTeam((prev) => ({ ...prev, flag: file }));
-    setPreview(URL.createObjectURL(file)); 
+    if (file) setPreview(URL.createObjectURL(file)); 
   };
 
   const validateForm = ()=>{
@@ -74,8 +74,9 @@ export default function AddTeamPopup() {
         }
 
     }
-    catch {
-        
+    catch (err) {
+        console.log(err)
+        toast.error(err || 'Unknown error')
     }
   };
 
