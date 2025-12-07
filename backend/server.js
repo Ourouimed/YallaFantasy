@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 const authRouter = require('./routes/auth')
 const teamsRouter = require('./routes/teams')
+const playersRouter = require('./routes/players')
 const corsOptions = require('./middelware/corsOptions')
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -20,6 +21,7 @@ app.use(cookieParser());
 // routes
 app.use('/api/auth' , authRouter)
 app.use('/api/teams' , teamsRouter)
+app.use('/api/players' , playersRouter)
 
 app.listen(PORT , ()=>{
     console.log(`server running on port ${PORT}`)
