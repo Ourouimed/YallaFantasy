@@ -3,8 +3,6 @@ import { teamsService } from "./teamsService";
 const initialState = {
     teams : [] ,
     isLoading : false ,
-    status : null ,
-    statusMsg : null ,
 }
 
 export const createTeam = createAsyncThunk('teams/create' , async (team , thunkAPI)=>{
@@ -19,7 +17,6 @@ export const createTeam = createAsyncThunk('teams/create' , async (team , thunkA
 
 export const updateTeam = createAsyncThunk('teams/update' , async (team , thunkAPI)=>{
     try {
-      console.log(team)
         return await teamsService.update(team.id , team.formData)
     }
     catch (err){
@@ -65,8 +62,6 @@ export const teamsSlice = createSlice({
         })
         .addCase(createTeam.rejected, (state, action) => {
           state.isLoading = false;
-          state.status = false
-          state.statusMsg = action.payload
           console.log(action.payload)
         })
 
@@ -76,13 +71,13 @@ export const teamsSlice = createSlice({
         })
         .addCase(updateTeam.fulfilled, (state, action) => {
           state.isLoading = false;
-          state.teams.push(action.payload.team)
+          const { id } = action.meta.arg
+          const teamToEdit = state.teams.findIndex(team => team.team_id == id);
+          state.teams[teamToEdit] = action.payload.team
           console.log(action.payload)
         })
         .addCase(updateTeam.rejected, (state, action) => {
           state.isLoading = false;
-          state.status = false
-          state.statusMsg = action.payload
           console.log(action.payload)
         })
         // get all Teams
@@ -96,8 +91,6 @@ export const teamsSlice = createSlice({
         })
         .addCase(getAllTeams.rejected, (state, action) => {
           state.isLoading = false;
-          state.status = false
-          state.statusMsg = action.payload
           state.teams = []
           console.log(action.payload)
         })
@@ -113,8 +106,6 @@ export const teamsSlice = createSlice({
         })
         .addCase(deleteTeamByid.rejected, (state, action) => {
           state.isLoading = false;
-          state.status = false;
-          state.statusMsg = action.payload;
           console.log(action.payload);
         });
 

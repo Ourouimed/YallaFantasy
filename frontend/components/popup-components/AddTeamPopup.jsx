@@ -6,6 +6,7 @@ import Button from "../ui/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { createTeam } from "@/store/features/teams/teamsSlice";
 import { usePopup } from "@/hooks/usePopup";
+import { useToast } from "@/hooks/useToast";
 
 export default function AddTeamPopup() {
   const [team, setTeam] = useState({
@@ -15,10 +16,12 @@ export default function AddTeamPopup() {
   });
 
   const [preview, setPreview] = useState(null); 
-  const { closePopup } = usePopup()
-
+  const [validationErrors , setValidationErrors] = useState({})
+  
   const dispatch = useDispatch()
   const { isLoading } = useSelector(state => state.teams)
+  const toast = useToast()
+  const { closePopup } = usePopup()
 
   // Group options
   const options = () => {
@@ -43,8 +46,18 @@ export default function AddTeamPopup() {
     setPreview(URL.createObjectURL(file)); 
   };
 
+  const validateForm = ()=>{
+        const newErrors = {}
+        if (!team.teamName.trim()) newErrors.teamName = "Team name is required";
+        if (!team.group.trim()) newErrors.group = "Group is required";
+        if (!team.flag) newErrors.flag = "Flag is required";
+        setValidationErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+  }
   const handleCreateTeam = async () => {
     try {
+        if (!validateForm()) return false;
+
         const formData = new FormData();
         formData.append("teamName", team.teamName);
         formData.append("group", team.group);
@@ -54,8 +67,10 @@ export default function AddTeamPopup() {
             setPreview(null);
             setTeam({ group: "", teamName: "", flag: null });
             closePopup();
-        } catch {
-           
+            toast.success("Team created successfully")
+        } catch (err) {
+            console.log(err)
+            toast.error(err)
         }
 
     }
@@ -100,6 +115,7 @@ export default function AddTeamPopup() {
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
+                {validationErrors?.flag && <p className="text-red-600 text-sm">{validationErrors.flag}</p>}
             </label>
         </div>
 
@@ -116,6 +132,7 @@ export default function AddTeamPopup() {
           value={team.teamName}
           onChange={handleChange}
         />
+        {validationErrors?.teamName && <p className="text-red-600 text-sm">{validationErrors.teamName}</p>}
       </div>
 
       <div className="space-y-2">
@@ -129,6 +146,7 @@ export default function AddTeamPopup() {
           onChange={handleGroupChange}
           placeholder="Select group"
         />
+        {validationErrors?.group && <p className="text-red-600 text-sm">{validationErrors.group}</p>}
       </div>
 
       

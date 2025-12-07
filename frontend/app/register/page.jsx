@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "@/store/features/auth/authSlice";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 export default function RegisterPage() {
     const [registerForm , setRegisterForm] = useState({
@@ -19,6 +20,7 @@ export default function RegisterPage() {
     const [validationErrors , setValidationErrors] = useState({})
     const dispatch = useDispatch()
     const { isLoading } = useSelector(state => state.auth)
+    const toast = useToast()
     const router = useRouter()
     const handleChange =(e)=>{
         setRegisterForm(prev => ({...prev , [e.target.id] : e.target.value}))
@@ -41,10 +43,16 @@ export default function RegisterPage() {
     }
 
 
-    const handleRegister = ()=>{
+    const handleRegister = async ()=>{
         if (!validateForms()) return ;
-        dispatch(registerUser(registerForm))
-        router.push('/login')
+        try {
+          await dispatch(registerUser(registerForm)).unwrap()
+          router.push('/login')
+        }
+        catch (err){
+          toast.error(err)
+        }
+        
     }
 
     

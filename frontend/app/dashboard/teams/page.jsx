@@ -12,8 +12,6 @@ import { useDispatch, useSelector } from "react-redux";
 export default function TeamsPage(){
     const { openPopup } = usePopup()
     const dispatch = useDispatch()
-
-    const { addToast } = useToast()
     const { isLoading , teams } = useSelector(state => state.teams)
     useEffect(() => {
         const fetchTeams = async () => {
@@ -66,9 +64,6 @@ export default function TeamsPage(){
                     />
 
                 )}
-                <Button onClick={()=>{
-                    addToast({message : 'Hello' , type : 'success'})
-                }}>Test Toast</Button>
             </div>
         </div>
     </DashboardLayout>

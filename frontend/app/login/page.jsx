@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, verifySession } from "@/store/features/auth/authSlice";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/useToast";
 
 export default function LoginPage() {
   const [loginForm , setLoginForm] = useState({
@@ -16,6 +17,7 @@ export default function LoginPage() {
   })
   const [validationErrors , setValidationErrors] = useState({})
   const { isLoading , user} = useSelector(state => state.auth)
+  const toast = useToast()
   const dispatch = useDispatch()
   const router = useRouter()
 
@@ -33,9 +35,15 @@ export default function LoginPage() {
         return Object.keys(newErrors).length === 0
     }
   
-    const handleLogin = ()=>{
+    const handleLogin = async ()=>{
       if (!validateForms()) return ;
-      dispatch(loginUser(loginForm))
+      try {
+        await dispatch(loginUser(loginForm)).unwrap()
+        toast.success('Login successfully')
+      }
+      catch (err) {
+        toast.error(err)
+      }
     }
     
     useEffect(()=>{

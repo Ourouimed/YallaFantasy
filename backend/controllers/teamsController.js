@@ -6,10 +6,14 @@ exports.create = async (req , res)=>{
     try {
       const { teamName, group } = req.body;
 
-      const flagUrl = await uploadImage(req.file , "teams_flag")
-      Teams.createTeam(teamName , group , flagUrl)
+      if (!teamName || !group || !req.file){
+        return res.status(400).json({ error: "All fields are required" });
+      }
 
-      res.json({ message: "Team created!" , team : {
+      const flagUrl = await uploadImage(req.file , "teams_flag")
+      await Teams.createTeam(teamName , group , flagUrl)
+
+      res.json({ message: "Team created successfully!" , team : {
         team_id : teamName , 
         team_name : teamName , 
         group_num : group , 
@@ -17,7 +21,7 @@ exports.create = async (req , res)=>{
       }});
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error uploading team flag" });
+    res.status(500).json({ error: "Error creating team" });
   }
 }
 
@@ -25,6 +29,9 @@ exports.update = async (req , res)=>{
   const { teamName , flag , group} = req.body
   const { id } = req.params
   
+  if (!teamName || !group || !flag){
+        return res.status(400).json({ error: "All fields are required" });
+  }
   try {
     const [ team ] = await Teams.getTeamById(id)
 
@@ -40,7 +47,7 @@ exports.update = async (req , res)=>{
 
     Teams.updateTeam(teamName  , group , newFlagUrl , id)
     res.json({ message: "Team updated!" , team : {
-        team_id : teamName , 
+        team_id : id , 
         team_name : teamName , 
         group_num : group , 
         flag : newFlagUrl
@@ -71,13 +78,14 @@ exports.delete = async (req , res)=>{
   }
 
   try {
-    const res = await Teams.deleteByid(id)
-    if (res.affectedRows === 0){
-       return res.status(404).json({ message: "Team not found" });
+    const results = await Teams.deleteByid(id)
+    if (results.affectedRows === 0){
+       return res.status(404).json({ error: "Team not found" });
     }
     res.json({message : 'Team deleted successfully'})
   }
-  catch {
+  catch(err) {
+    console.log(err)
     return res.status(500).json({error : 'Error deleting team!'})
   }
   

@@ -5,9 +5,7 @@ import authService from "./authService";
 const initialState = {
   user: null ,
   loggedIn : false ,
-  isLoading : true ,
-  status : null ,
-  statusMsg : null ,
+  isLoading : false 
 };
 
 export const registerUser = createAsyncThunk('auth/register' , async (user , thunkAPI)=>{
@@ -70,14 +68,10 @@ export const authSlice = createSlice({
     })
     .addCase(registerUser.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.status = true
-      state.statusMsg = action.payload.message
       console.log(action.payload)
     })
     .addCase(registerUser.rejected, (state, action) => {
       state.isLoading = false;
-      state.status = false
-      state.statusMsg = action.payload
       state.user = null
       console.log(action.payload)
     })
@@ -89,15 +83,11 @@ export const authSlice = createSlice({
     .addCase(loginUser.fulfilled, (state, action) => {
       state.isLoading = false;
       state.user = action.payload.data
-      state.status = true
-      state.statusMsg = action.payload.message
       state.loggedIn = true
       console.log(action.payload)
     })
     .addCase(loginUser.rejected, (state, action) => {
       state.isLoading = false;
-      state.status = false
-      state.statusMsg = action.payload
       state.user = null
       state.loggedIn = false
     })
@@ -108,14 +98,10 @@ export const authSlice = createSlice({
     })
     .addCase(verifyEmail.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.status = true
-      state.statusMsg = action.payload.message
       console.log(action.payload)
     })
     .addCase(verifyEmail.rejected, (state, action) => {
       state.isLoading = false;
-      state.status = false
-      state.statusMsg = action.payload
     })
 
 
@@ -127,14 +113,10 @@ export const authSlice = createSlice({
       state.isLoading = false;
       console.log(action.payload)
       state.user = action.payload.data
-      state.status = true
-      state.statusMsg = action.payload.message
       state.loggedIn = true
     })
     .addCase(verifySession.rejected, (state, action) => {
       state.isLoading = false;
-      state.status = false
-      state.statusMsg = action.payload
       state.user = null
       state.loggedIn = false
     })
@@ -148,13 +130,9 @@ export const authSlice = createSlice({
       console.log(action.payload)
       state.user = null
       state.loggedIn = false
-      state.status = true
-      state.statusMsg = action.payload
     })
     .addCase(logout.rejected, (state, action) => {
       state.isLoading = false;
-      state.status = false
-      state.statusMsg = action.payload
       state.user = null
       state.loggedIn = false
     })
