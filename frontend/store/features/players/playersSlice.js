@@ -26,6 +26,15 @@ export const createPlayer = createAsyncThunk('players/create' , async (player , 
     }
 })
 
+export const updatePlayer = createAsyncThunk('players/update' , async (player , thunkAPI)=>{
+    try {
+        return await playersService.update(player.id , player.formData)
+    }
+    catch (err){
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
 export const playersSlice = createSlice({
     name : "players" ,
     initialState ,
@@ -56,6 +65,22 @@ export const playersSlice = createSlice({
             console.log(action.payload)
         })
         .addCase(createPlayer.rejected, (state, action) => {
+            state.isLoading = false;
+            console.log(action.payload)
+        })
+
+        // update Player
+        .addCase(updatePlayer.pending, (state) => {
+            state.isLoading = true;
+        })
+        .addCase(updatePlayer.fulfilled, (state, action) => {
+            state.isLoading = false;
+            const { id } = action.meta.arg
+            const playerToEdit = state.players.findIndex(player => player.player_id == id);
+            state.players[playerToEdit] = action.payload.player
+            console.log(action.payload)
+        })
+        .addCase(updatePlayer.rejected, (state, action) => {
             state.isLoading = false;
             console.log(action.payload)
         })

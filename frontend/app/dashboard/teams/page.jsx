@@ -38,6 +38,22 @@ export default function TeamsPage() {
         setTeamToSearch(e.target.value);
     };
 
+    const handleOpenEditPopup = (team)=>{
+        openPopup({
+            title: "Edit national team",
+            component: "EditTeamPopup",
+            props : {team}
+        })
+    }
+
+    const handleOpenDeleteConfirmation = (id)=>{
+        openPopup({
+            title: "Delete team",
+            component: "DeleteTeamPopup",
+            props : {id}
+        })
+    }
+
     const handleGroupChange = (value) => {
         setFilteredGroup(value);
     };

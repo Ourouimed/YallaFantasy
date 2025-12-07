@@ -43,6 +43,22 @@ export default function PlayersPage() {
         setFilteredGroup(value);
     };
 
+    const handleOpenEditPopup = (player)=>{
+        openPopup({
+            title: "Edit Player",
+            component: "EditPlayerPopup",
+            props : {player}
+        })
+    }
+
+    const handleOpenDeleteConfirmation = (id)=>{
+        openPopup({
+            title: "Delete Player",
+            component: "DeletePlayerPopup",
+            props : {id}
+        })
+    }
+
     
 
     return (

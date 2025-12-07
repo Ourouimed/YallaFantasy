@@ -26,10 +26,10 @@ exports.create = async (req , res)=>{
 }
 
 exports.update = async (req , res)=>{
-  const { teamName , flag , group} = req.body
+  const { teamName , group} = req.body
   const { id } = req.params
   
-  if (!teamName || !group || !flag){
+  if (!teamName || !group ){
         return res.status(400).json({ error: "All fields are required" });
   }
   try {
