@@ -16,21 +16,23 @@ exports.getAllPlayers = async (req , res)=>{
 
 exports.create = async (req , res)=>{
     try {
-      const {fullname , team_id , price } = req.body;
+      const {fullname , team_id , price , position} = req.body;
+      console.log(req.body)
 
-      if (!fullname || !team_id || !price|| !req.file){
+      if (!fullname || !team_id || !price|| !position || !req.file){
         return res.status(400).json({ error: "All fields are required" });
       }
 
       const playerImage = await uploadImage(req.file , "players_images")
-      await Players.createPlayer(fullname , team_id , playerImage , price)
+      await Players.createPlayer(fullname , team_id , playerImage , price , position)
 
       res.json({ message: "Player created successfully!" , player : {
         player_id : fullname , 
-        fullname : fullname , 
-        team_id : team_id , 
+        fullname , 
+        team_id , 
         player_image : playerImage ,
-        price : price
+        price,
+        position 
       }});
   } catch (err) {
     console.error(err);
@@ -71,4 +73,24 @@ exports.update = async (req , res)=>{
       console.log(err)
       return res.status(500).json({error : 'Error updating player!'})
   }
+}
+
+exports.delete = async (req , res)=>{
+  const { id } = req.body
+  if (!id){
+    return res.status(400).json({ error: "No player Id provided" });
+  }
+
+  try {
+    const results = await Players.deleteByid(id)
+    if (results.affectedRows === 0){
+       return res.status(404).json({ error: "Player not found" });
+    }
+    res.json({message : 'Player deleted successfully'})
+  }
+  catch(err) {
+    console.log(err)
+    return res.status(500).json({error : 'Error deleting Player!'})
+  }
+  
 }

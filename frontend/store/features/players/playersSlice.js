@@ -35,6 +35,18 @@ export const updatePlayer = createAsyncThunk('players/update' , async (player , 
     }
 })
 
+
+
+export const deletePlayerById = createAsyncThunk('teams/delete' , async (playerId , thunkAPI)=>{
+    try {
+        return await playersService.deleteByid(playerId)
+    }
+    catch (err){
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
+
 export const playersSlice = createSlice({
     name : "players" ,
     initialState ,
@@ -84,6 +96,21 @@ export const playersSlice = createSlice({
             state.isLoading = false;
             console.log(action.payload)
         })
+
+        // delete player by id
+        .addCase(deletePlayerById.pending, (state) => {
+            state.isLoading = true;
+        })
+        .addCase(deletePlayerById.fulfilled, (state, action) => {
+            const deletedPlayerId = action.meta.arg; 
+            state.isLoading = false;
+            state.players = state.players.filter(player => player.player_id !== deletedPlayerId);
+        })
+        .addCase(deletePlayerById.rejected, (state, action) => {
+            state.isLoading = false;
+            console.log(action.payload)
+        })
+                
     }
 })
 

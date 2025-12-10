@@ -14,7 +14,8 @@ export default function EditPlayerPopup({ player }) {
     fullname: player.fullname,
     price: player.price,
     team_id: player.team_id,
-    player_image: null, // new image only
+    player_image: null, 
+    position : player.position
   });
 
   const [preview, setPreview] = useState(player.player_image);
@@ -31,18 +32,25 @@ export default function EditPlayerPopup({ player }) {
     dispatch(getAllTeams());
   }, []);
 
-  const options = teams.map(t => ({
+  const teamOptions = teams.map(t => ({
     value: t.team_id,
     label: t.team_name
   }));
+
+  const positionOption = [
+    { value: 'FWD' , label : 'FWD'} , 
+    { value: 'MID' , label : 'MID'} ,
+    { value: 'DEF' , label : 'DEF'} , 
+    { value: 'GK' , label : 'GK'} 
+  ]
 
   const validateForm = () => {
     const errors = {};
 
     if (!playerToEdit.fullname.trim()) errors.fullname = "Player name is required";
-    if (!playerToEdit.price || Number(playerToEdit.price) <= 0)
-      errors.price = "Valid price is required";
+    if (!playerToEdit.price || Number(playerToEdit.price) <= 0)errors.price = "Valid price is required";
     if (!playerToEdit.team_id) errors.team_id = "Team is required";
+    if (!playerToEdit.position) errors.position = "Position is required";
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -54,6 +62,10 @@ export default function EditPlayerPopup({ player }) {
 
   const handleTeamChange = (value) => {
     setPlayerToEdit(prev => ({ ...prev, team_id: value }));
+  };
+
+  const handlePositionChange = (value) => {
+    setPlayerToEdit(prev => ({ ...prev, position: value }));
   };
 
   const handleFileChange = (e) => {
@@ -69,6 +81,7 @@ export default function EditPlayerPopup({ player }) {
     formData.append("fullname", playerToEdit.fullname);
     formData.append("price", playerToEdit.price);
     formData.append("team_id", playerToEdit.team_id);
+    formData.append("position", playerToEdit.position);
 
     if (playerToEdit.player_image) {
       formData.append("player_image", playerToEdit.player_image);
@@ -130,6 +143,20 @@ export default function EditPlayerPopup({ player }) {
         )}
       </div>
 
+      {/* position select */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-gray-700 uppercase">Player Position</label>
+        <Select
+          value={playerToEdit.position}
+          options={positionOption}
+          onChange={handlePositionChange}
+          placeholder="Select position"
+        />
+        {validationErrors.position && (
+          <p className="text-red-600 text-sm">{validationErrors.position}</p>
+        )}
+      </div>
+
       {/* price */}
       <div className="space-y-2">
         <label className="text-xs font-medium text-gray-700 uppercase">Price</label>
@@ -150,7 +177,7 @@ export default function EditPlayerPopup({ player }) {
         <label className="text-xs font-medium text-gray-700 uppercase">Team</label>
         <Select
           value={playerToEdit.team_id}
-          options={options}
+          options={teamOptions}
           onChange={handleTeamChange}
           placeholder="Select team"
         />

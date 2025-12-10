@@ -25,6 +25,7 @@ CREATE TABLE players (
     player_id varchar(50) PRIMARY KEY,
     fullname VARCHAR(50),
     team_id varchar(50), 
+    position varchar(10),
     player_image varchar(500) ,
     price double(4,2) DEFAULT 0.0,
     total_pts int DEFAULT 0 ,

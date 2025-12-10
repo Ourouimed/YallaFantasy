@@ -13,7 +13,7 @@ export default function EditTeamPopup({team}) {
     id : team.team_id ,
     group: team.group_num,
     teamName: team.team_name,
-    flag: team.flag, 
+    flag: null, 
   });
 
   const [preview, setPreview] = useState(team.flag); 

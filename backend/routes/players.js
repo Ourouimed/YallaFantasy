@@ -11,5 +11,6 @@ const upload = multer({ storage });
 router.get('/' , playersController.getAllPlayers)
 router.post('/create' , upload.single("player_image") , playersController.create)
 router.put('/update/:id' , upload.single("player_image") , playersController.update)
+router.delete('/delete' , playersController.delete)
 
 module.exports = router

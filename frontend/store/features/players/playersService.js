@@ -20,5 +20,10 @@ const update = async (id , data)=>{
     return respone.data
 }
 
+const deleteByid = async (id)=>{
+    const respone = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/players/delete` , {data : {id}})
+    return respone.data
+}
 
-export const playersService = { getAllPlayers , create , update}
+
+export const playersService = { getAllPlayers , create , update , deleteByid}

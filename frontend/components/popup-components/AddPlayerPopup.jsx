@@ -15,6 +15,7 @@ export default function AddPlayerPopup() {
     price: "",
     team_id: "",
     player_image: null,
+    position : ""
   });
 
   const [preview, setPreview] = useState(null);
@@ -31,10 +32,17 @@ export default function AddPlayerPopup() {
     dispatch(getAllTeams());
   }, []);
 
-  const options = teams.map(team => ({
+  const teamOptions = teams.map(team => ({
     value: team.team_id,
     label: team.team_name
   }));
+
+  const positionOption = [
+    { value: 'FWD' , label : 'FWD'} , 
+    { value: 'MID' , label : 'MID'} ,
+    { value: 'DEF' , label : 'DEF'} , 
+    { value: 'GK' , label : 'GK'} 
+  ]
 
   const handleChange = (e) => {
     setPlayer(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,6 +50,10 @@ export default function AddPlayerPopup() {
 
   const handleGroupChange = (value) => {
     setPlayer(prev => ({ ...prev, team_id: value }));
+  };
+
+  const handlePositionChange = (value) => {
+    setPlayer(prev => ({ ...prev, position: value }));
   };
 
   const handleFileChange = (e) => {
@@ -56,6 +68,7 @@ export default function AddPlayerPopup() {
     if (!player.fullname.trim()) errors.fullname = "Player name is required";
     if (!player.price || Number(player.price) <= 0) errors.price = "Valid price is required";
     if (!player.team_id) errors.team_id = "Team is required";
+    if (!player.position) errors.position = "Position is required";
     if (!player.player_image) errors.player_image = "Player image is required";
 
     setValidationErrors(errors);
@@ -70,6 +83,7 @@ export default function AddPlayerPopup() {
     formData.append("price", player.price);
     formData.append("team_id", player.team_id);
     formData.append("player_image", player.player_image);
+    formData.append("position", player.position);
 
     try {
       await dispatch(createPlayer(formData)).unwrap();
@@ -148,6 +162,24 @@ export default function AddPlayerPopup() {
         )}
       </div>
 
+      {/* Player position */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-gray-700 uppercase">
+          Player Position
+        </label>
+
+        <Select
+          options={positionOption}
+          value={player.position}
+          onChange={handlePositionChange}
+          placeholder="Select position"
+        />
+
+        {validationErrors.position && (
+          <p className="text-red-600 text-sm">{validationErrors.position}</p>
+        )}
+      </div>
+
       {/* Price */}
       <div className="space-y-2">
         <label className="text-xs font-medium text-gray-700 uppercase">
@@ -174,7 +206,7 @@ export default function AddPlayerPopup() {
         </label>
 
         <Select
-          options={options}
+          options={teamOptions}
           value={player.team_id}
           onChange={handleGroupChange}
           placeholder="Select team"

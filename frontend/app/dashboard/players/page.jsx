@@ -128,7 +128,7 @@ export default function PlayersPage() {
                                         <Button
                                             className="!p-0 !text-red-500"
                                             onClick={() =>
-                                                handleOpenDeleteConfirmation(row.team_id)
+                                                handleOpenDeleteConfirmation(row.player_id)
                                             }
                                         >
                                             <Trash size={18} />
