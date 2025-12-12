@@ -14,8 +14,9 @@ export default function EditPlayerPopup({ player }) {
     fullname: player.fullname,
     price: player.price,
     team_id: player.team_id,
-    player_image: null, 
-    position : player.position
+    player_image: player.player_image, 
+    position : player.position ,
+    player_number : player.player_number
   });
 
   const [preview, setPreview] = useState(player.player_image);
@@ -48,9 +49,11 @@ export default function EditPlayerPopup({ player }) {
     const errors = {};
 
     if (!playerToEdit.fullname.trim()) errors.fullname = "Player name is required";
-    if (!playerToEdit.price || Number(playerToEdit.price) <= 0)errors.price = "Valid price is required";
+    if (!playerToEdit.price || Number(playerToEdit.price) <= 0) errors.price = "Valid price is required";
+    if (!playerToEdit.player_number || Number(playerToEdit.player_number) <= 0 || Number(playerToEdit.player_number) > 28) errors.player_number = "Number must be between 1 & 28";
     if (!playerToEdit.team_id) errors.team_id = "Team is required";
     if (!playerToEdit.position) errors.position = "Position is required";
+    if (!playerToEdit.player_image) errors.player_image = "Player image is required";
 
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -82,6 +85,7 @@ export default function EditPlayerPopup({ player }) {
     formData.append("price", playerToEdit.price);
     formData.append("team_id", playerToEdit.team_id);
     formData.append("position", playerToEdit.position);
+    formData.append("player_number", playerToEdit.player_number);
 
     if (playerToEdit.player_image) {
       formData.append("player_image", playerToEdit.player_image);
@@ -169,6 +173,27 @@ export default function EditPlayerPopup({ player }) {
         />
         {validationErrors.price && (
           <p className="text-red-600 text-sm">{validationErrors.price}</p>
+        )}
+      </div>
+
+      {/* Player Number */}
+      <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-700 uppercase">
+            Number
+          </label>
+      
+      <Input
+          name="player_number"
+          type="number"
+          min={1}
+          max={28}
+          placeholder="Enter number"
+          value={playerToEdit.player_number}
+          onChange={handleChange}
+      />
+      
+      {validationErrors.player_number && (
+          <p className="text-red-600 text-sm">{validationErrors.player_number}</p>
         )}
       </div>
 

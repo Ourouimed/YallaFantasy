@@ -1,4 +1,4 @@
-import { Flag, LayoutDashboard, Settings, User, Users } from "lucide-react"
+import { Flag, LayoutDashboard, Settings, Trophy, User, Users } from "lucide-react"
 
 export const menu = [
     {
@@ -31,7 +31,12 @@ export const adminMenu = [
     {
         name : 'Dashboard',
         url : '/dashboard',
-        icon : Users
+        icon : LayoutDashboard
+    },
+    {
+        name : 'Rounds',
+        url : '/dashboard/rounds',
+        icon : Trophy
     },
     {
         name : 'Players',

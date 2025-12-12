@@ -67,8 +67,8 @@ export default function PlayersPage() {
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">National teams</h1>
-                        <p className="text-gray-700">Manage AFCON2025 teams</p>
+                        <h1 className="text-3xl font-bold">Players</h1>
+                        <p className="text-gray-700">Manage AFCON2025 players</p>
                     </div>
 
                     <Button

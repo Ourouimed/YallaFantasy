@@ -15,6 +15,7 @@ export default function AddPlayerPopup() {
     price: "",
     team_id: "",
     player_image: null,
+    player_number : '',
     position : ""
   });
 
@@ -67,6 +68,7 @@ export default function AddPlayerPopup() {
 
     if (!player.fullname.trim()) errors.fullname = "Player name is required";
     if (!player.price || Number(player.price) <= 0) errors.price = "Valid price is required";
+    if (!player.player_number || Number(player.player_number) <= 0 || Number(player.player_number) > 28) errors.player_number = "Number must be between 1 & 28";
     if (!player.team_id) errors.team_id = "Team is required";
     if (!player.position) errors.position = "Position is required";
     if (!player.player_image) errors.player_image = "Player image is required";
@@ -84,6 +86,7 @@ export default function AddPlayerPopup() {
     formData.append("team_id", player.team_id);
     formData.append("player_image", player.player_image);
     formData.append("position", player.position);
+    formData.append("player_number", player.player_number);
 
     try {
       await dispatch(createPlayer(formData)).unwrap();
@@ -94,7 +97,8 @@ export default function AddPlayerPopup() {
         fullname: "",
         price: "",
         team_id: "",
-        player_image: null,
+        player_image: null, 
+        player_number : ""
       });
 
       setPreview(null);
@@ -196,6 +200,27 @@ export default function AddPlayerPopup() {
 
         {validationErrors.price && (
           <p className="text-red-600 text-sm">{validationErrors.price}</p>
+        )}
+      </div>
+
+      {/* Player Number */}
+      <div className="space-y-2">
+        <label className="text-xs font-medium text-gray-700 uppercase">
+          Number
+        </label>
+
+        <Input
+          name="player_number"
+          type="number"
+          min={1}
+          max={28}
+          placeholder="Enter number"
+          value={player.player_number}
+          onChange={handleChange}
+        />
+
+        {validationErrors.player_number && (
+          <p className="text-red-600 text-sm">{validationErrors.player_number}</p>
         )}
       </div>
 

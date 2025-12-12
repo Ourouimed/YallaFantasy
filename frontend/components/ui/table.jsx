@@ -1,6 +1,9 @@
 "use client";
 export default function Table({ data, columns }) {
-  if (!data || data.length === 0) return null;
+  console.log(data)
+  if (!data || data.length === 0) {
+    return <p className="text-center py-4">No data available</p>;
+  }
 
   // Merge data keys + custom columns
   const keys = [

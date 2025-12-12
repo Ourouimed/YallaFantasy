@@ -32,3 +32,10 @@ CREATE TABLE players (
     FOREIGN KEY (team_id) REFERENCES teams(team_id)
 );
 
+
+-- Rounds Structure
+CREATE TABLE rounds (
+    round_id varchar(10) PRIMARY KEY ,
+    round_title varchar(50),
+    round_deadline DATETIME null
+)

@@ -5,6 +5,7 @@ import PopupReducer  from "./features/popup/popupSlice";
 import teamsReducer  from "./features/teams/teamsSlice";
 import toastReducer from "./features/toast/toastSlice";
 import playersReducer from "./features/players/playersSlice";
+import roundsReducer from "./features/rounds/roundsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     popup : PopupReducer,
     teams : teamsReducer ,
     players : playersReducer,
-    toast : toastReducer
+    toast : toastReducer ,
+    rounds : roundsReducer
   }
 });

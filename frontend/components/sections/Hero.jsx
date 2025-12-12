@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 export default function Hero() {
   return (
     <section id="hero" className="min-h-screen bg-gradient-to-r from-second to-main text-white flex items-center">
-      <div className="container mx-auto px-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="mx-auto px-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="text-center md:text-left">
           <span></span>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
