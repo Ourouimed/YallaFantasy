@@ -14,7 +14,7 @@ const NavItem = ({ name, url, icon: Icon }) => {
           url === currentPath ? "bg-main text-white" : "hover:text-white"
         } font-semibold w-full text-sm`}
       >
-        <Icon size={20} />
+        <Icon size={20} color={'currentColor'}/>
         <span>{name}</span>
       </Link>
     </li>

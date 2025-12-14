@@ -5,7 +5,7 @@ import authService from "./authService";
 const initialState = {
   user: null ,
   loggedIn : false ,
-  isLoading : false 
+  isLoading : true 
 };
 
 export const registerUser = createAsyncThunk('auth/register' , async (user , thunkAPI)=>{

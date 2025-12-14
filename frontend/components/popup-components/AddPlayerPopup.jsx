@@ -49,7 +49,7 @@ export default function AddPlayerPopup() {
     setPlayer(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleGroupChange = (value) => {
+  const handleTeamChange = (value) => {
     setPlayer(prev => ({ ...prev, team_id: value }));
   };
 
@@ -233,7 +233,7 @@ export default function AddPlayerPopup() {
         <Select
           options={teamOptions}
           value={player.team_id}
-          onChange={handleGroupChange}
+          onChange={handleTeamChange}
           placeholder="Select team"
         />
 

@@ -1,4 +1,5 @@
-import { Flag, LayoutDashboard, Settings, Trophy, User, Users } from "lucide-react"
+import { FootballIcon } from "@/components/icons/football"
+import { Flag, LayoutDashboard, Settings, Trophy, User } from "lucide-react"
 
 export const menu = [
     {
@@ -42,6 +43,11 @@ export const adminMenu = [
         name : 'Players',
         url : '/dashboard/players',
         icon : User
+    },
+    {
+        name : 'Matches',
+        url : '/dashboard/matches',
+        icon : FootballIcon
     },
     {
         name : 'National teams',

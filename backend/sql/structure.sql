@@ -39,3 +39,41 @@ CREATE TABLE rounds (
     round_title varchar(50),
     round_deadline DATETIME null
 )
+
+
+-- match structure 
+CREATE TABLE matches (
+    match_id int PRIMARY KEY AUTO_INCREMENT ,
+    home_team varchar(10) NOT NULL,
+    away_team varchar(10) NOT NULL ,
+    match_round varchar(10) NOT NULL ,
+    match_time timestamp ,
+    home_score int DEFAULT null ,
+    away_score int DEFAULT null , 
+    match_started TINYINT(1) NOT NULL DEFAULT 0,
+    match_started_at DATETIME,
+    match_status varchar(10) default NULL,
+    FOREIGN KEY (home_team) REFERENCES teams(team_id) ,
+    FOREIGN KEY (away_team) REFERENCES teams(team_id)
+);
+
+
+
+-- Linup structure
+CREATE TABLE linup (
+    match_id varchar(40) ,
+    player_id varchar(50) ,   
+    starting_linup TINYINT NOT NULL,
+    round_pts int DEFAULT 0 ,
+    red_card TINYINT NOT NULL DEFAULT 0 , 
+    yallow_cards int default 0 , 
+    goals int default 0 , 
+    assists int default 0 , 
+    pen_saves int default 0 , 
+    pen_missed int default 0 ,
+    min_played int default 0, 
+    own_goals int default 0 ,
+    clean_sheets TINYINT DEFAULT 0,
+    FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    FOREIGN KEY (player_id) REFERENCES players(player_id)
+);

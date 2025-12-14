@@ -32,7 +32,6 @@ export default function PlayersPage() {
 
     useEffect(() => {
         dispatch(getAllPlayers()).unwrap();
-        console.log(players)
     }, []);
 
     const handleSearch = (e) => {
@@ -111,10 +110,10 @@ export default function PlayersPage() {
                             data={players}
                             columns={{
                                 player_image: (value) => (
-                                    <img src={value} className="size-9 rounded-full p-1 border-1" />
+                                    <img src={value} className="size-12 rounded-full p-1 border-1" />
                                 ),
                                 team : (value) => (
-                                    <img src={value} className="size-9 rounded-full p-1 border-1" />
+                                    <img src={value} className="w-14 h-9 rounded" />
                                 ),
                                 action: (_, row) => (
                                     <div className="flex items-center gap-2">

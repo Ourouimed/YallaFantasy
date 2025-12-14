@@ -6,6 +6,7 @@ import teamsReducer  from "./features/teams/teamsSlice";
 import toastReducer from "./features/toast/toastSlice";
 import playersReducer from "./features/players/playersSlice";
 import roundsReducer from "./features/rounds/roundsSlice";
+import matchesReducer from "./features/matches/matchesSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     teams : teamsReducer ,
     players : playersReducer,
     toast : toastReducer ,
-    rounds : roundsReducer
+    rounds : roundsReducer,
+    matches : matchesReducer
   }
 });
