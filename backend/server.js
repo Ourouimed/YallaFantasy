@@ -24,12 +24,15 @@ app.use(cookieParser());
 
 
 // routes
-app.use('/api/auth' , authRouter)
-app.use('/api/teams' , teamsRouter)
-app.use('/api/players' , playersRouter)
-app.use('/api/rounds' , roundsRouter)
-app.use('/api/matches' , matchesRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/teams', teamsRouter)
+app.use('/api/players', playersRouter)
+app.use('/api/rounds', roundsRouter)
+app.use('/api/matches', matchesRouter)
+app.use('/api/settings', require('./routes/settings'))
+app.use('/api/fantasy-teams', require('./routes/fantasyTeams'))
+app.use('/api/leagues', require('./routes/leagues'))
 
-app.listen(PORT , ()=>{
+app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`)
 })

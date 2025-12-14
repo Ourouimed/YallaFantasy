@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }) {
       if(!isLoading && !user){
         router.push('/login')
       }
-      if (user && user?.role !== 'admin') router.push('/play')
+      if (user && user?.role !== 'admin') router.push('/overview')
     } , [user , router , isLoading] )
   return (
     <div className="flex h-screen">
