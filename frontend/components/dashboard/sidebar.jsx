@@ -41,7 +41,11 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         <div className="space-y-8 p-4">
           <div className="py-2">
             <h3 className="font-bold text-3xl text-black">
-              Yalla<span className="text-third">Fantasy</span>
+              <img
+              src={"/assets/images/logo.png"}
+              alt="user"
+              className="bg-transparent w-28"
+            />
             </h3>
           </div>
 

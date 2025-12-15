@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/store/features/auth/authSlice";
 
-export default function Header() {
+export default function Header({isSticky = false}) {
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const { user } = useSelector(state => state.auth)
@@ -19,11 +19,15 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed z-20 w-full top-0 bg-main backdrop-blur-lg py-4 px-6 md:px-20 text-white flex justify-between items-center">
+    <header className={`${isSticky ? 'sticky' : 'fixed'} z-20 w-full top-0 bg-main backdrop-blur-lg py-4 px-6 md:px-20 text-white flex justify-between items-center`}>
       
       <div className="flex items-center gap-6">
         <h3 className="text-xl font-bold">
-          Yalla<span className="text-third">Fantasy</span>
+          <img
+              src={"/assets/images/logo.png"}
+              alt="user"
+              className="bg-transparent w-28"
+            />
         </h3>
 
         <ul className="hidden md:flex gap-7 items-center">
@@ -59,9 +63,6 @@ export default function Header() {
               <div className="absolute right-0 mt-2 bg-white text-black rounded-xl py-2 w-40 shadow-lg">
                 <a href="/profile" className="block px-4 py-2 hover:bg-gray-100">
                   Profile
-                </a>
-                <a href="/dashboard" className="block px-4 py-2 hover:bg-gray-100">
-                  Dashboard
                 </a>
                 <Button className="text-red-500 hover:bg-gray-100 w-full justify-start"
                         onClick={handleLogout}>
