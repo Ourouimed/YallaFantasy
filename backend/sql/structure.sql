@@ -77,3 +77,20 @@ CREATE TABLE linup (
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
     FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
+
+create table settings (
+    current_round varchar(10) ,
+    yellow_card int default -1 , 
+    red_card int default -3 ,
+    pen_missed int default -2, 
+    own_goal int default -2 , 
+    goal_for_ATT int default 4 ,
+    goal_for_MID int default 5 ,
+    goal_for_DEF int default 6 , 
+    goal_for_GK int default 8 , 
+    clean_sheets_def_gk int default 4 ,
+    clean_sheets_mid int default 1 ,
+    pen_saves int default 5 , 
+    conced_goal int default -1 ,
+    FOREIGN key (current_round) REFERENCES rounds (round_id)
+)

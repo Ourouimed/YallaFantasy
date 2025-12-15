@@ -7,7 +7,7 @@ export const menu = [
         name : 'Home'
     },
     {
-        url : '/dashboard',
+        url : '/overview',
         name : 'Play'
     },
     {

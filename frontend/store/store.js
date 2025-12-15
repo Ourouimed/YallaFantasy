@@ -7,6 +7,7 @@ import toastReducer from "./features/toast/toastSlice";
 import playersReducer from "./features/players/playersSlice";
 import roundsReducer from "./features/rounds/roundsSlice";
 import matchesReducer from "./features/matches/matchesSlice";
+import settingsReducer from "./features/settings/settingsSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     players : playersReducer,
     toast : toastReducer ,
     rounds : roundsReducer,
-    matches : matchesReducer
+    matches : matchesReducer , 
+    settings : settingsReducer
   }
 });

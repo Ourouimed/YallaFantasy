@@ -9,6 +9,7 @@ const teamsRouter = require('./routes/teams')
 const playersRouter = require('./routes/players')
 const roundsRouter = require('./routes/rounds')
 const matchesRouter = require('./routes/matches')
+const settingsRouter = require('./routes/settings')
 
 const corsOptions = require('./middelware/corsOptions')
 const cookieParser = require('cookie-parser');
@@ -29,6 +30,7 @@ app.use('/api/teams' , teamsRouter)
 app.use('/api/players' , playersRouter)
 app.use('/api/rounds' , roundsRouter)
 app.use('/api/matches' , matchesRouter)
+app.use('/api/settings' , settingsRouter)
 
 app.listen(PORT , ()=>{
     console.log(`server running on port ${PORT}`)

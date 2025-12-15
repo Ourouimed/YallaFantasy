@@ -53,7 +53,7 @@ export default function LoginPage() {
     useEffect(()=>{
       if(user){
         if (user.role === 'admin')  router.push('/dashboard')
-        else  router.push('/play')
+        else  router.push('/overview')
        
       }
     } , [user , router])
