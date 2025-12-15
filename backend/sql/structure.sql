@@ -103,7 +103,8 @@ create table fantasy_team  (
     total_pts int default 0 ,
     triple_captain timestamp default null ,
     wildcard timestamp default null ,
-    jocker timestamp default null ,
+    jocker timestamp default null , 
+    availble_transfers int default
     FOREIGN KEY (id_team) REFERENCES users(id)
 );
 

@@ -112,9 +112,9 @@ export default function PlayersPage() {
                                 player_image: (value) => (
                                     <img src={value} className="size-12 rounded-full p-1 border-1" />
                                 ),
-                                team : (value) => (
+                                team :(value) => (
                                     <img src={value} className="w-14 h-9 rounded" />
-                                ),
+                                ), 
                                 action: (_, row) => (
                                     <div className="flex items-center gap-2">
                                         <Button

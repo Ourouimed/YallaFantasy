@@ -8,6 +8,7 @@ import playersReducer from "./features/players/playersSlice";
 import roundsReducer from "./features/rounds/roundsSlice";
 import matchesReducer from "./features/matches/matchesSlice";
 import settingsReducer from "./features/settings/settingsSlice";
+import myTeamReducer from "./features/my-team/myTeamSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     toast : toastReducer ,
     rounds : roundsReducer,
     matches : matchesReducer , 
-    settings : settingsReducer
+    settings : settingsReducer ,
+    myTeam : myTeamReducer
   }
 });

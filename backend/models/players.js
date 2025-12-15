@@ -2,7 +2,7 @@ const db = require('../config/db')
 const Players = {
     getAllPlayers : async ()=>{
         const [rows] = await db.query(`SELECT 
-                                            p.* ,  t.flag as team from players p
+                                            p.* ,   t.flag as team , t.team_name as team_name from players p
                                             inner join teams t on p.team_id = t.team_id`)
         return rows
     },

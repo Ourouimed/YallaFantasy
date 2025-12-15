@@ -2,25 +2,32 @@
 import Header from "@/components/sections/Header";
 import Button from "@/components/ui/Button";
 import { verifySession } from "@/store/features/auth/authSlice";
+import { getTeam } from "@/store/features/my-team/myTeamSlice";
 import { Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PlayPage(){
-    const { user , isLoading} = useSelector(state => state.auth)
+    const { user } = useSelector(state => state.auth)
+    const authLoading = useSelector(state => state.auth.isLoading)
+    const { my_team , isLoading }= useSelector(state => state.myTeam)
     const dispatch = useDispatch()
     const router = useRouter()
     useEffect(()=>{
             dispatch(verifySession())
+            
     } , [])
     
     useEffect(()=>{
-          if(!isLoading && !user){
+          if(!authLoading && !user){
             router.push('/login')
           }
+          else {
+            dispatch(getTeam())
+          }
           
-    } , [user , router , isLoading] )
+    } , [user , router , authLoading] )
     return <>
         <Header isSticky/>
         <div className="px-20 py-3">
@@ -40,7 +47,7 @@ export default function PlayPage(){
                                 </p>
                             </div>
                        </div>
-                       <Button className='!bg-second text-white'>Configure team</Button>
+                       {!my_team && <Button isLink href={'/team-selection'} className='!bg-second text-white'>Create Team</Button>}
                     </div>
                 </div>
             </div>
