@@ -22,31 +22,97 @@ exports.getTeamSquad = async (req, res) => {
 
         const rounds = await Rounds.getAllrounds()
         const { nextRound, prevRound } = getDeadlines(rounds)
-        console.log({ nextRound, prevRound })
 
         if (!nextRound) {
             return res.json(null)
         }
 
-        
-        const nextSquad = await MyTeam.getTeamSquad(userId,nextRound.round_id)
-        if (!nextSquad) {
-            const prevSquad = await MyTeam.getTeamSquad(userId,nextRound.round_id)
-            if (!prevSquad) {
+        const [team] = await MyTeam.getTeamDetaills(userId)
+        if (!team){
+            return res.json({team : {team_name : "" , balance : 100}  , nextDeadline : nextRound , players : {
+                GK : [] , DEF : [] , MID : [] , FWD : []
+            }})
+        }
+       
 
+        const nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id , userId)
+        if (nextRoundSquad.length === 0){
+            const prevRoundSquad = await MyTeam.getTeamSquad(prevRound.round_id , userId)
+            if (prevRoundSquad.length ===  0){
+                 return res.json({team : {team_name : "" , balance : 100}  , nextDeadline : nextRound , players : {
+                GK : [] , DEF : [] , MID : [] , FWD : []
+            }})
+            
             }
-            return res.json({players : null , nextDeadline : nextRound , team_data : team})
+        }
+        const playersPrices = nextRoundSquad.map(e => Number(e.purchased_price))
+        const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
+        const players = {
+            GK : nextRoundSquad.filter(p => p.position === 'GK') ,
+            DEF : nextRoundSquad.filter(p => p.position === 'DEF') ,
+            MID : nextRoundSquad.filter(p => p.position === 'MID'),
+            FWD : nextRoundSquad.filter(p => p.position === 'FWD')
         }
 
         
-
-        
-        return res.json({players : null , nextDeadline : nextRound})
+        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue } , nextDeadline : nextRound , players : players})
 
     } catch (err) {
         console.error(err)
         return res.status(500).json({
             error: 'Failed to get team squad'
+        })
+    }
+}
+
+
+exports.saveTeam = async (req , res)=>{
+    const token = req.cookies.token
+    if (!token) {
+        return res.status(401).json({
+            error: 'Session expired or invalid. Please login again.'
+        })
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET)
+        const userId = decoded.id
+        const rounds = await Rounds.getAllrounds()
+        const { nextRound, prevRound } = getDeadlines(rounds)
+        const { team_name , players : { GK , DEF , MID , FWD}} = req.body
+
+        const captain = FWD[0].player_id
+        const vice_captain = MID[0].player_id
+
+        const [ savedTeam ] = await MyTeam.getTeamDetaills(userId)
+        if (savedTeam)
+
+
+        await MyTeam.createTeam(userId , team_name , nextRound.round_id , captain , vice_captain) 
+        await Promise.all(
+            FWD.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
+        )
+
+
+        await Promise.all(
+            MID.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
+        )
+
+
+        await Promise.all(
+            DEF.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
+        )
+
+        await Promise.all(
+            GK.map(({player_id , id_team , price }) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
+        )
+
+
+    }
+    catch (err) {
+        console.error(err)
+        return res.status(500).json({
+            error: 'Failed to save team squad'
         })
     }
 }

@@ -1,210 +1,174 @@
-'use client';
+"use client"
 import Header from "@/components/sections/Header";
 import { getAllPlayers } from "@/store/features/players/playersSlice";
-import { getAllrounds } from "@/store/features/rounds/roundsSlice";
 import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatLocalTime } from "@/utils/formatDate";
 import PlayerLinupCard from "@/components/ui/cards/PlayerLinupCard";
 import { useToast } from "@/hooks/useToast";
 import PlayerListCard from "@/components/ui/cards/PlayerListCard";
-import { getTeam } from "@/store/features/my-team/myTeamSlice";
-
+import { getTeam, saveTeam } from "@/store/features/my-team/myTeamSlice";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 export default function TeamSelection() {
     const { players } = useSelector(state => state.players);
-    const { rounds } = useSelector(state => state.rounds);
-    const { my_team } = useSelector(state => state.myTeam)
+    const { my_team , isLoading} = useSelector(state => state.myTeam);
     const dispatch = useDispatch();
     const toast = useToast();
 
     const availableSpots = { GK: 2, DEF: 5, MID: 5, FWD: 3 };
 
+    // Initialize with a proper structure to avoid "undefined" errors on first render
     const [teamSelection, setTeamSelection] = useState({
-        team_name: '',
         bank: 100,
+        team_name : '',
         total_selected: 0,
         players: { GK: [], DEF: [], MID: [], FWD: [] }
     });
 
-    // 1. Initial Data Fetching
     useEffect(() => { dispatch(getAllPlayers()); }, [dispatch]);
     useEffect(() => { dispatch(getTeam()); }, [dispatch]);
 
-    if (my_team) console.log(my_team)
+    // Sync Redux store to local state when data arrives
+    useEffect(() => {
+        if (my_team && my_team.players) {
+            console.log(my_team)
+            setTeamSelection({
+                bank: my_team.team?.balance ?? 100,
+                team_name : my_team?.team.team_name,
+                total_selected: Object.values(my_team.players).flat().length,
+                players: my_team.players ,
+                nextDeadline : my_team.nextDeadline
+            });
+        }
+    }, [my_team]);
 
-    
-
-    // 3. Helper: Parse Price String to Number
-    const parsePlayerPrice = (priceString) => {
-        if (typeof priceString === 'number') return priceString;
-        const price = parseFloat(priceString.replace('$', '').replace('m', ''));
-        return isNaN(price) ? 0 : price;
-    };
-
-    // 4. Determine which players are already selected
+    // Memoize selected IDs for fast lookup in the list
     const selectedPlayerIds = useMemo(() => {
         return new Set(Object.values(teamSelection.players).flat().map(p => p.player_id));
     }, [teamSelection.players]);
 
-    // 5. Transform players for the list (with selection status)
-    const playersToShow = useMemo(() => {
-        return players.map(p => ({
-            ...p,
-            displayPrice: '$' + p.price + 'm',
-            isSelected: selectedPlayerIds.has(p.player_id)
-        }));
-    }, [players, selectedPlayerIds]);
-
-    // 6. Add Player Logic (Validated)
     const handleAddPlayerToSquad = (player) => {
-        const playerPrice = parsePlayerPrice(player.price);
-        const position = player.position;
-        const currentPlayersFlat = Object.values(teamSelection.players).flat();
+        const price = parseFloat(player.price) || 0;
+        const pos = player.position;
+        const currentPosPlayers = teamSelection.players[pos];
+        const allSelected = Object.values(teamSelection.players).flat();
 
         // VALIDATIONS
-        if (selectedPlayerIds.has(player.player_id)) {
-            toast.info("Player already selected");
-            return;
+        if (selectedPlayerIds.has(player.player_id)) return toast.info("Player already selected");
+        if (currentPosPlayers.length >= availableSpots[pos]) return toast.info(`Full on ${pos}s`);
+        if (teamSelection.bank < price) return toast.info("Insufficient funds");
+        if (allSelected.filter(p => p.team_name === player.team_name).length >= 3) {
+            return toast.info("Max 3 players per real-world team");
         }
 
-        const sameTeamCount = currentPlayersFlat.filter(p => p.team_name === player.team_name).length;
-        if (sameTeamCount >= 3) {
-            toast.info("Max 3 players from the same team");
-            return;
-        }
-
-        if (teamSelection.players[position].length >= availableSpots[position]) {
-            toast.info(`Max ${availableSpots[position]} ${position}s allowed`);
-            return;
-        }
-
-        if (teamSelection.bank < playerPrice) {
-            toast.info("Not enough budget");
-            return;
-        }
-
-        // STATE UPDATE
         setTeamSelection(prev => ({
             ...prev,
-            bank: Number((prev.bank - playerPrice).toFixed(1)), // Fix floating point math
+            bank: Number((prev.bank - price).toFixed(1)),
             total_selected: prev.total_selected + 1,
             players: {
                 ...prev.players,
-                [position]: [...prev.players[position], player]
+                [pos]: [...prev.players[pos], player]
             }
         }));
     };
 
-    // 7. Remove Player Logic
     const handleRemovePlayerFromSquad = (player) => {
-        const playerPrice = parsePlayerPrice(player.price);
-        const position = player.position;
-
+        const price = parseFloat(player.price) || 0;
         setTeamSelection(prev => ({
             ...prev,
-            bank: Number((prev.bank + playerPrice).toFixed(1)),
+            bank: Number((prev.bank + price).toFixed(1)),
             total_selected: prev.total_selected - 1,
             players: {
                 ...prev.players,
-                [position]: prev.players[position].filter(p => p.player_id !== player.player_id)
+                [player.position]: prev.players[player.position].filter(p => p.player_id !== player.player_id)
             }
         }));
     };
 
-    // Helper: fill empty slots for visual lineup
-    const getLineupWithEmpty = (posPlayers, total) => {
-        return [...posPlayers, ...Array(total - posPlayers.length).fill(null)];
+    // Helper for visual slots
+    const getLineupWithEmpty = (pos) => {
+        const selected = teamSelection.players[pos] || [];
+        const totalNeeded = availableSpots[pos];
+        return [...selected, ...Array(totalNeeded - selected.length).fill(null)];
     };
+
+    const handleSaveTeam = async ()=>{
+        try {
+                await dispatch(saveTeam(teamSelection)).unwrap()
+                toast.success('Team saved successfully')
+        }
+        catch (err){
+            console.log(err)
+            toast.error(err)
+        }
+    }
 
     return (
         <>
             <Header isSticky />
             <div className="px-4 md:px-20 py-6">
                 <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-6">
-
+                    
                     {/* TOP INFO BAR */}
-                    
-                        <div className="lg:col-span-full p-4 border rounded-lg bg-main/5 border-main/30">
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                                <div>
-                                    <h4 className="text-lg font-bold text-main">Current Round: {my_team?.nextDeadline?.round_title}</h4>
-                                    <p className="text-sm text-gray-600">
-                                        Deadline: <span className="font-mono font-bold">{formatLocalTime(my_team?.nextDeadline?.round_deadline)}</span>
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-8">
-                                    <div className="text-center">
-                                        <span className="text-3xl font-bold">{teamSelection.total_selected}</span>
-                                        <span className="text-gray-400 text-xl"> / 15</span>
-                                        <h5 className="text-xs uppercase tracking-wider text-gray-500">Players</h5>
-                                    </div>
-                                    <div className="text-center">
-                                        <span className={`text-3xl font-bold ${teamSelection.bank < 0 ? 'text-red-500' : 'text-green-600'}`}>
-                                            ${teamSelection.bank}m
-                                        </span>
-                                        <h5 className="text-xs uppercase tracking-wider text-gray-500">Bank</h5>
-                                    </div>
-                                </div>
+                    <div className="lg:col-span-full p-4 border rounded-lg bg-main/5 border-main/30">
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <h4 className="text-lg font-bold">Round: {my_team?.nextDeadline?.round_title} -  {formatLocalTime(my_team?.nextDeadline?.round_deadline)}</h4>
+                                <p className="text-sm text-gray-500">Bank: <span className="font-bold text-green-600">${teamSelection.bank}m</span></p>
                             </div>
-                        </div>
-                    
-
-                    {/* LEFT COLUMN: PLAYER SELECTION LIST */}
-                    <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
-                        <div className="p-4 border-b bg-gray-50 font-bold text-gray-700">Available Players</div>
-                        <div className="divide-y divide-gray-100 max-h-[700px] overflow-y-auto">
-                            {playersToShow.length === 0 ? (
-                                <p className="p-10 text-center text-gray-400">Loading players...</p>
-                            ) : (
-                                playersToShow.map((player) => (
-                                    <PlayerListCard 
-                                        player={player} 
-                                        key={player.player_id} 
-                                        onClick={handleAddPlayerToSquad}
-                                    />
-                                ))
-                            )}
+                            <div className="text-right">
+                                <span className="text-2xl font-black">{teamSelection.total_selected} / 15</span>
+                                <p className="text-xs uppercase text-gray-400">Players Selected</p>
+                            </div>
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: PITCH / LINEUP VISUALIZATION */}
+                    {/* LIST COLUMN */}
+                    <div className="space-y-3">
+                        <div className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm p-4 space-y-2">
+                            <Input placeholder='your team name here' value={teamSelection.team_name} onChange={(e)=>{
+                                setTeamSelection(prev => ({...prev , team_name : e.target.value}))
+                            }}/>
+                            <Button className='!bg-main text-white w-full' disabled={teamSelection.total_selected !== 15 || isLoading} onClick={handleSaveTeam}>
+                                {isLoading ? 'Saving...' : 'Save team'}
+                            </Button>
+                        </div>
+                        <div className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm">
+                        <div className="p-4 border-b border-gray-300 bg-gray-50 font-bold">Available Players</div>
+                        <div className="divide-y divide-gray-300 max-h-[700px] overflow-y-auto">
+                            {players.map(player => (
+                                <PlayerListCard 
+                                    key={player.player_id} 
+                                    player={player} 
+                                    disabled={selectedPlayerIds.has(player.player_id)}
+                                    onClick={() => handleAddPlayerToSquad(player)} 
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    </div>
+
+                    {/* PITCH COLUMN */}
                     <div className="w-full">
-                        <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col gap-10 min-h-[600px] shadow-inner border-4 border-emerald-700">
-                            {/* Pitch markings decoration */}
-                            <div className="absolute inset-4 border-2 border-white/20 rounded-xl pointer-events-none" />
-                            
+                        <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[700px] shadow-inner border-4 border-emerald-700">
                             {["GK", "DEF", "MID", "FWD"].map(pos => (
-                                <div key={pos} className="flex flex-wrap justify-center items-center gap-4 relative z-10">
-                                    {getLineupWithEmpty(teamSelection.players[pos], availableSpots[pos]).map((p, i) =>
+                                <div key={pos} className="flex flex-wrap justify-center gap-4">
+                                    {getLineupWithEmpty(pos).map((p, i) => (
                                         p ? (
-                                            <div 
-                                                key={p.player_id} 
-                                                onClick={() => handleRemovePlayerFromSquad(p)}
-                                                className="cursor-pointer hover:scale-105 transition-transform"
-                                            >
+                                            <div key={p.player_id} onClick={() => handleRemovePlayerFromSquad(p)} className="cursor-pointer hover:scale-105 transition-transform">
                                                 <PlayerLinupCard player={p} />
                                             </div>
                                         ) : (
-                                            <div 
-                                                key={i} 
-                                                className="size-16 rounded-full border-2 border-dashed border-white/30 bg-black/5 flex items-center justify-center text-white/30 text-xs font-bold"
-                                            >
+                                            <div key={i} className="size-16 rounded-full border-2 border-dashed border-white/20 bg-black/5 flex items-center justify-center text-white/40 text-xs font-bold">
                                                 {pos}
                                             </div>
                                         )
-                                    )}
+                                    ))}
                                 </div>
                             ))}
                         </div>
-                        
-                        <button 
-                            className="w-full mt-4 bg-main text-white py-3 rounded-lg font-bold disabled:bg-gray-300 disabled:cursor-not-allowed"
-                            disabled={teamSelection.total_selected < 15}
-                        >
-                            Confirm Squad
-                        </button>
                     </div>
-
                 </div>
             </div>
         </>

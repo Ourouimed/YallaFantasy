@@ -8,4 +8,12 @@ const getTeam = async (round_id)=>{
 }
 
 
-export const myTeamService = { getTeam }
+
+
+const saveTeam = async (data)=>{
+    const respone = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/my-team/save` , data)
+    return respone.data
+}
+
+
+export const myTeamService = { getTeam , saveTeam}

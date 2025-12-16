@@ -11,6 +11,17 @@ export const getTeam = createAsyncThunk('my-team/get' , async (id , thunkAPI)=>{
 })
 
 
+export const saveTeam = createAsyncThunk('my-team/save' , async (data , thunkAPI)=>{
+    try {
+        console.log('test')
+        return await myTeamService.saveTeam(data)
+    }
+    catch (err){
+        console.log(err)
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
 export const myTeamSlice= createSlice({
     name : 'my-team' ,
     initialState : {
@@ -30,6 +41,20 @@ export const myTeamSlice= createSlice({
             state.my_team = action.payload
         })
         .addCase(getTeam.rejected , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+
+
+        // save team 
+        .addCase(saveTeam.pending , (state)=>{
+            state.isLoading= true 
+        })
+        .addCase(saveTeam.fulfilled , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+        .addCase(saveTeam.rejected , (state , action)=>{
             state.isLoading = false
             console.log(action.payload)
         })

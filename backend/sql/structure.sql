@@ -115,10 +115,6 @@ CREATE TABLE fantasy_list (
     round_id VARCHAR(10),
     purchased_price DECIMAL(6,2) NOT NULL,
     scored_pts INT DEFAULT 0,
-    role ENUM('NORMAL','CAPTAIN','VICE_CAPTAIN') DEFAULT 'NORMAL',
-
-    PRIMARY KEY (id_team, id_player, round_id),
-
     FOREIGN KEY (id_team) REFERENCES fantasy_team(id_team),
     FOREIGN KEY (id_player) REFERENCES players(player_id),
     FOREIGN KEY (national_team) REFERENCES teams(team_id),

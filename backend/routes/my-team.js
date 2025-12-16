@@ -4,6 +4,7 @@ const myTeamController = require('../controllers/myTeamController');
 
 
 router.get('/' , myTeamController.getTeamSquad)
+router.post('/save' , myTeamController.saveTeam)
 
 
 module.exports = router
