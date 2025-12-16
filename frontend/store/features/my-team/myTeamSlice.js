@@ -9,6 +9,8 @@ export const getTeam = createAsyncThunk('my-team/get' , async (id , thunkAPI)=>{
         return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
     }
 })
+
+
 export const myTeamSlice= createSlice({
     name : 'my-team' ,
     initialState : {
@@ -30,7 +32,6 @@ export const myTeamSlice= createSlice({
         .addCase(getTeam.rejected , (state , action)=>{
             state.isLoading = false
             console.log(action.payload)
-            state.my_team = null
         })
         
     }

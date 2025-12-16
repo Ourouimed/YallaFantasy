@@ -1,9 +1,14 @@
 const db = require('../config/db')
 const MyTeam = {
-    getTeam : async (id)=>{
-        const [rows] = await db.query('select * from fantasy_team where id_team = ?' , [id])
+    getTeamSquad : async (round_id , id_team)=>{
+        const [rows] = await db.query(`SELECT * from fantasy_list where round_id = ? AND id_team = ?` , [round_id , id_team])
+        return rows
+    },
+    getTeamSquad : async (id_team)=>{
+        const [rows] = await db.query(`SELECT * from fantasy_team where id_team = ?` , [id_team])
         return rows
     }
+
 }
 
 

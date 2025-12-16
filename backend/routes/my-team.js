@@ -3,7 +3,7 @@ const router = express.Router();
 const myTeamController = require('../controllers/myTeamController');
 
 
-router.post('/' , myTeamController.getTeam)
+router.get('/' , myTeamController.getTeamSquad)
 
 
 module.exports = router

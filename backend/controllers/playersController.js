@@ -16,23 +16,27 @@ exports.getAllPlayers = async (req , res)=>{
 
 exports.create = async (req , res)=>{
     try {
-      const {fullname , team_id , price , position , player_number} = req.body;
+      const {fullname , team_id , price , position} = req.body;
   
 
-      if (!fullname || !team_id || !price|| !position || !player_number || !req.file){
+      if (!fullname || !team_id || !price|| !position || !req.file){
         return res.status(400).json({ error: "All fields are required" });
       }
 
       const playerImage = await uploadImage(req.file , "players")
-      const playerId = `P-${team_id}${player_number}`
-      await Players.createPlayer(playerId , fullname , team_id , playerImage , price , position , player_number)
+
+      // full name parts
+      const parts = fullname.trim().split(/\s+/);
+      const [firstname, lastname = 'x', thirdname = 'x'] = parts;
+      const playerId = `${firstname}_${lastname}_${thirdname}-${team_id}`;
+
+      await Players.createPlayer(playerId , fullname , team_id , playerImage , price , position)
       return res.json({message: "Player created successfully!" , player : { 
             player_id : playerId , 
             fullname , team_id , 
             player_image : playerImage , 
             price , 
             position , 
-            player_number
       }})
   } catch (err) {
     console.error(err);
@@ -41,10 +45,10 @@ exports.create = async (req , res)=>{
 }
 
 exports.update = async (req , res)=>{
-  const {fullname , team_id , price , player_number , position} = req.body
+  const {fullname , team_id , price , position} = req.body
   const { id } = req.params
   
-  if (!fullname || !team_id || !price || !player_number || !position){
+  if (!fullname || !team_id || !price || !position){
       return res.status(400).json({ error: "All fields are required" });
   }
   try {
@@ -54,21 +58,22 @@ exports.update = async (req , res)=>{
       return res.status(404).json({error : 'player not found'})
     }
 
-    let newPlayerId = `P-${team_id}${player_number}`
+    const parts = fullname.trim().split(/\s+/);
+    const [firstname, lastname = 'x', thirdname = 'x'] = parts;
+    const newPlayerId = `${firstname}_${lastname}_${thirdname}-${team_id}`;
     let newPlayerImage = player.player_image; 
     if (req.file){
         await deleteImage(player.player_image)
         newPlayerImage = await uploadImage(req.file , "players")
     }
 
-    await Players.updatePlayer(newPlayerId , fullname , team_id , price , newPlayerImage , player_number, id)
+    await Players.updatePlayer(newPlayerId , fullname , team_id , price , newPlayerImage, id)
     return res.json({ message: "Player updated!" , player : { 
             player_id : newPlayerId , 
             fullname , team_id , 
             player_image : newPlayerImage , 
             price , 
             position , 
-            player_number
       }});
   }
   catch (err){

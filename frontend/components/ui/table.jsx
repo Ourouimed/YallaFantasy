@@ -1,5 +1,5 @@
 "use client";
-export default function Table({ data, columns }) {
+export default function Table({ data, columns , onClick}) {
   console.log(data)
   if (!data || data.length === 0) {
     return <p className="text-center py-4">No data available</p>;
@@ -27,7 +27,7 @@ export default function Table({ data, columns }) {
 
           <tbody>
             {data.map((item, i) => (
-              <tr key={i} className="border-t border-gray-200 hover:bg-gray-50">
+              <tr key={i} className={`border-t border-gray-200 hover:bg-gray-50 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick ? () => onClick(item) : undefined}>
                 {keys.map((k) => (
                   <td key={k} className="px-4 py-2 whitespace-nowrap">
                     {columns && columns[k] ? columns[k](item[k], item) : item[k]}

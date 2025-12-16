@@ -14,16 +14,16 @@ export default function SettingsPage() {
   const dispatch = useDispatch();
   const toast = useToast();
 
-  const { rounds } = useSelector((state) => state.rounds);
   const { settings, isLoading } = useSelector((state) => state.settings);
 
   const [settingsData, setSettingsData] = useState({
-    current_round: "",
     yellow_card: 0,
     red_card: 0,
+    assist : 0 ,
     pen_missed: 0,
     own_goal: 0,
-    goal_for_ATT: 0,
+    gk_save : 0 ,
+    goal_for_FWD: 0,
     goal_for_MID: 0,
     goal_for_DEF: 0,
     goal_for_GK: 0,
@@ -43,12 +43,13 @@ export default function SettingsPage() {
   useEffect(() => {
   if (settings) {
     setSettingsData({
-      current_round: settings.current_round || "",
       yellow_card: settings.yellow_card ?? 0,
+      assist : settings.assist ?? 0 , 
       red_card: settings.red_card ?? 0,
       pen_missed: settings.pen_missed ?? 0,
       own_goal: settings.own_goal ?? 0,
-      goal_for_ATT: settings.goal_for_ATT ?? 0,
+      gk_save : settings.gk_save ?? 0 ,
+      goal_for_FWD: settings.goal_for_FWD ?? 0,
       goal_for_MID: settings.goal_for_MID ?? 0,
       goal_for_DEF: settings.goal_for_DEF ?? 0,
       goal_for_GK: settings.goal_for_GK ?? 0,
@@ -62,16 +63,8 @@ export default function SettingsPage() {
 }, [settings]);
 
 
-  if (!settings) return null;
 
-  const roundToSelect = rounds.map((r) => ({
-    value: r.round_id,
-    label: r.round_title,
-  }));
 
-  const handleChangeCurrRound = (value) => {
-    setSettingsData((prev) => ({ ...prev, current_round: value }));
-  };
 
   const handleChange = (e) => {
     setSettingsData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -108,22 +101,21 @@ export default function SettingsPage() {
           </div>
 
           <div className="py-3 px-4 space-y-4">
-            {/* Current round */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-gray-700 uppercase">
-                Current round
-              </label>
-              <Select
-                name="current_round"
-                options={roundToSelect}
-                value={settingsData.current_round}
-                onChange={handleChangeCurrRound}
-                placeholder="Select round"
-              />
-            </div>
+    
 
             {/* Two inputs per row */}
             <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-gray-700 uppercase">
+                  Assist
+                </label>
+                <Input
+                  type="number"
+                  name="assist"
+                  value={settingsData.assist}
+                  onChange={handleChange}
+                />
+              </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-gray-700 uppercase">
                   Yellow card
@@ -208,8 +200,21 @@ export default function SettingsPage() {
                 </label>
                 <Input
                   type="number"
-                  name="clean_sheets_def_gk"
+                  name="clean_sheets_gk"
                   value={settingsData.clean_sheets_gk}
+                  onChange={handleChange}
+                />
+              </div>
+
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-gray-700 uppercase">
+                  GK saves
+                </label>
+                <Input
+                  type="number"
+                  name="gk_save"
+                  value={settingsData.gk_save}
                   onChange={handleChange}
                 />
               </div>
@@ -246,7 +251,7 @@ export default function SettingsPage() {
         {/* Fowrward */}
         <div className="border border-gray-300 rounded-md">
           <div className="py-3 px-4 border-b border-gray-300">
-            <h4 className="text-2xl font-semibold">Att settings</h4>
+            <h4 className="text-2xl font-semibold">FWD settings</h4>
           </div>
 
           <div className="py-3 px-4 space-y-4">
@@ -260,12 +265,12 @@ export default function SettingsPage() {
         
               <div className="space-y-2">
                 <label className="text-xs font-medium text-gray-700 uppercase">
-                  Goal for Att
+                  Goal for FWD
                 </label>
                 <Input
                   type="number"
-                  name="goal_for_ATT"
-                  value={settingsData.goal_for_ATT}
+                  name="goal_for_FWD"
+                  value={settingsData.goal_for_FWD}
                   onChange={handleChange}
                 />
               </div>
