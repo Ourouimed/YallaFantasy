@@ -37,14 +37,20 @@ exports.getTeamSquad = async (req, res) => {
 
         const nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id , userId)
         if (nextRoundSquad.length === 0){
-            const prevRoundSquad = await MyTeam.getTeamSquad(prevRound.round_id , userId)
+            const prevRoundSquad = await MyTeam.getTeamSquad(prevRound?.round_id , userId)
             if (prevRoundSquad.length ===  0){
                  return res.json({team : {team_name : "" , balance : 100}  , nextDeadline : nextRound , players : {
-                GK : [] , DEF : [] , MID : [] , FWD : []
-            }})
-            
+                    GK : [] , DEF : [] , MID : [] , FWD : []
+                }})
             }
+
+            await Promise.all(
+                prevRoundSquad.map(({player_id , id_team , purchased_price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , purchased_price )) 
+            )
+            await MyTeam.addNewTransfer(userId)
         }
+
+
         const playersPrices = nextRoundSquad.map(e => Number(e.purchased_price))
         const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
         const players = {
@@ -53,7 +59,7 @@ exports.getTeamSquad = async (req, res) => {
             MID : nextRoundSquad.filter(p => p.position === 'MID'),
             FWD : nextRoundSquad.filter(p => p.position === 'FWD')
         }
-
+        console.log(team)
         
         return res.json({team : {team_name : team.team_name, balance : 100 - teamValue } , nextDeadline : nextRound , players : players})
 
@@ -79,16 +85,19 @@ exports.saveTeam = async (req , res)=>{
         const userId = decoded.id
         const rounds = await Rounds.getAllrounds()
         const { nextRound, prevRound } = getDeadlines(rounds)
-        const { team_name , players : { GK , DEF , MID , FWD}} = req.body
+        const { team_name , players , players : { GK , DEF , MID , FWD}} = req.body
 
         const captain = FWD[0].player_id
         const vice_captain = MID[0].player_id
 
         const [ savedTeam ] = await MyTeam.getTeamDetaills(userId)
-        if (savedTeam)
+        if (savedTeam) {
+            console.log(savedTeam)
+        }
 
 
         await MyTeam.createTeam(userId , team_name , nextRound.round_id , captain , vice_captain) 
+        const [ team ] = await MyTeam.getTeamDetaills(userId)
         await Promise.all(
             FWD.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
         )
@@ -106,6 +115,10 @@ exports.saveTeam = async (req , res)=>{
         await Promise.all(
             GK.map(({player_id , id_team , price }) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
         )
+
+
+        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue } , nextDeadline : nextRound , players : players})
+
 
 
     }
