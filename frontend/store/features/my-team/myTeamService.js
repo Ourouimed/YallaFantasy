@@ -2,8 +2,15 @@ import axios from "axios"
 axios.defaults.withCredentials = true;
 
 
-const getTeam = async (round_id)=>{
-    const respone = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/my-team` , {round_id})
+const getTeam = async () =>{
+    const respone = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/my-team`)
+    return respone.data
+}
+
+
+
+const getPickedTeam = async () =>{
+    const respone = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/my-team/pick-team`)
     return respone.data
 }
 
@@ -16,4 +23,6 @@ const saveTeam = async (data)=>{
 }
 
 
-export const myTeamService = { getTeam , saveTeam}
+
+
+export const myTeamService = { getTeam , saveTeam , getPickedTeam}

@@ -307,6 +307,8 @@ export default function TeamSelection() {
                 ))}
               </div>
             )}
+
+            
             <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[700px] shadow-inner border-4 border-emerald-700">
               {["GK", "DEF", "MID", "FWD"].map((pos) => (
                 <div key={pos} className="flex flex-wrap justify-center gap-4">

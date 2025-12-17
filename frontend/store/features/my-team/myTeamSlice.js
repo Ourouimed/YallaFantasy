@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { myTeamService } from "./myTeamService";
 
-export const getTeam = createAsyncThunk('my-team/get' , async (id , thunkAPI)=>{
+export const getTeam = createAsyncThunk('my-team/get' , async (_ , thunkAPI)=>{
     try {
-        return await myTeamService.getTeam(id)
+        return await myTeamService.getTeam()
     }
     catch (err){
         return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
@@ -22,11 +22,24 @@ export const saveTeam = createAsyncThunk('my-team/save' , async (data , thunkAPI
     }
 })
 
+
+
+export const getPickedTeam = createAsyncThunk('my-team/pick-team' , async (data , thunkAPI)=>{
+    try {
+        return await myTeamService.getPickedTeam()
+    }
+    catch (err){
+        console.log(err)
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
 export const myTeamSlice= createSlice({
     name : 'my-team' ,
     initialState : {
         isLoading : false ,
-        my_team : null
+        my_team : null ,
+        picked_team : null
     },
 
     extraReducers : builder=>{
@@ -41,6 +54,23 @@ export const myTeamSlice= createSlice({
             state.my_team = action.payload
         })
         .addCase(getTeam.rejected , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+
+
+
+
+        // get picked team 
+        .addCase(getPickedTeam.pending , (state)=>{
+            state.isLoading= true 
+        })
+        .addCase(getPickedTeam.fulfilled , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+            state.picked_team = action.payload
+        })
+        .addCase(getPickedTeam.rejected , (state , action)=>{
             state.isLoading = false
             console.log(action.payload)
         })

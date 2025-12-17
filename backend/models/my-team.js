@@ -7,6 +7,14 @@ const MyTeam = {
                                     where round_id = ? AND id_team = ?` , [round_id , id_team])
         return rows
     },
+
+    getPickedTeam : async (round_id , id_team)=>{
+        const [rows] = await db.query(`SELECT fl.* , p.* , t.flag as team from fantasy_list fl 
+                                    inner join players p on fl.id_player = p.player_id 
+                                    inner join teams t on p.team_id = t.team_id 
+                                    where round_id = ? AND id_team = ?` , [round_id , id_team])
+        return rows
+    },
     getTeamDetaills : async (id_team)=>{
         const [rows] = await db.query(`SELECT * from fantasy_team where id_team = ?` , [id_team])
         return rows
