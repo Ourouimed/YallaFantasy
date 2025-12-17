@@ -115,7 +115,7 @@ exports.saveTeam = async (req , res)=>{
         const decoded = jwt.verify(token, JWT_SECRET)
         const userId = decoded.id
         const rounds = await Rounds.getAllrounds()
-        const { nextRound, prevRound } = getDeadlines(rounds)
+        const { nextRound, prevRound } = (rounds)
         const { team_name , players , players : { GK , DEF , MID , FWD}} = req.body
 
         const captain = FWD[0].player_id
