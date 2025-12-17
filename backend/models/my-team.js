@@ -26,6 +26,16 @@ const MyTeam = {
         const [rows] = await db.query('SELECT wildcard , triple_captain , bench_boost , jocker , park_the_bus from fantasy_team')
         return rows
     },
+    updateTotalTransfers : async (transfers , id_team)=>{
+        await db.query('UPDATE fantasy_team set available_transfers = ? where id_team = ? ' , [transfers , id_team])
+    },
+    reducePoints : async (pts_to_reduce , id_team)=>{
+        await db.query('UPDATE fantasy_team set total_pts = total_pts - ? where id_team = ?' , [pts_to_reduce , id_team])
+    },
+    clearSquad : async (round_id , id_team)=>{
+        const [res] = await db.query('DELETE FROM fantasy_list where round_id = ? AND id_team = ?' , [round_id , id_team])
+        return res
+    },
     
 }
 

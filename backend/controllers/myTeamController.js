@@ -115,39 +115,86 @@ exports.saveTeam = async (req , res)=>{
         const decoded = jwt.verify(token, JWT_SECRET)
         const userId = decoded.id
         const rounds = await Rounds.getAllrounds()
-        const { nextRound, prevRound } = (rounds)
-        const { team_name , players , players : { GK , DEF , MID , FWD}} = req.body
-
+        const { nextRound, prevRound } = getDeadlines(rounds)
+        const { team_name , players , players : { GK , DEF , MID , FWD} , point_hit , transfers_made} = req.body
         const captain = FWD[0].player_id
         const vice_captain = MID[0].player_id
 
+
+        console.log(GK.length)
+
         const [ savedTeam ] = await MyTeam.getTeamDetaills(userId)
         if (savedTeam) {
-            console.log(savedTeam)
-            const players = await MyTeam.getTeamSquad(nextRound.round_id , userId)
-            console.log(players)
+                if (transfers_made <= 0){
+                    
+                    const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
+                    const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
+                    let players = [...GK , ...MID , ...DEF , ...FWD]
+
+
+                    return res.json({team : {team_name : savedTeam.team_name, balance : 100 - teamValue  , team : savedTeam.available_transfers} , nextDeadline : nextRound , players : players})
+                }
+                else {
+                    let newTransers = savedTeam.available_transfers > transfers_made ? savedTeam.available_transfers - transfers_made : 0
+                    await MyTeam.updateTotalTransfers(newTransers , userId)
+                    await MyTeam.reducePoints(point_hit , userId)
+
+
+                    const [ newSavedTeam ] = await MyTeam.getTeamDetaills(userId) 
+
+                    let resultss = await MyTeam.clearSquad(nextRound.round_id , userId)
+                    console.log(resultss.affectedRows)
+
+                    const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
+                    const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
+                    let players = [...GK , ...MID , ...DEF , ...FWD]
+
+
+                    await Promise.all(
+                        FWD.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
+
+
+                    await Promise.all(
+                        MID.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
+
+
+                    await Promise.all(
+                        DEF.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
+
+                    await Promise.all(
+                        GK.map(({player_id , national_team , id_team , price }) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
+                    
+                    
+
+                     return res.json({team : {team_name : newSavedTeam.team_name, balance : 100 - teamValue  , team : newSavedTeam.available_transfers} , nextDeadline : nextRound , players : players})
+                }
+            
         }
 
 
         await MyTeam.createTeam(userId , team_name , nextRound.round_id , captain , vice_captain) 
         const [ team ] = await MyTeam.getTeamDetaills(userId)
-        await Promise.all(
-            FWD.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
-        )
+                    await Promise.all(
+                        FWD.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
 
 
-        await Promise.all(
-            MID.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
-        )
+                    await Promise.all(
+                        MID.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
 
 
-        await Promise.all(
-            DEF.map(({player_id , id_team , price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
-        )
+                    await Promise.all(
+                        DEF.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
 
-        await Promise.all(
-            GK.map(({player_id , id_team , price }) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , price ))
-        )
+                    await Promise.all(
+                        GK.map(({player_id , national_team , id_team , price }) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
+                    )
         
 
         const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
