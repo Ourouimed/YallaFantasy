@@ -10,12 +10,33 @@ import PlayerListCard from "@/components/ui/cards/PlayerListCard";
 import { getTeam, saveTeam } from "@/store/features/my-team/myTeamSlice";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { verifySession } from "@/store/features/auth/authSlice";
+import { useRouter } from "next/navigation";
+import ChipCard from "@/components/ui/cards/ChipCard";
 
 export default function TeamSelection() {
     const { players } = useSelector(state => state.players);
+    const { user , isLoading : authLoading} = useSelector(state => state.auth)
     const { my_team, isLoading } = useSelector(state => state.myTeam);
     const dispatch = useDispatch();
     const toast = useToast();
+    const router = useRouter()
+
+
+    useEffect(()=>{
+        dispatch(verifySession())
+                
+    } , [])
+        
+    useEffect(()=>{
+        if(!authLoading && !user){
+            router.push('/login')
+        }
+        else {
+            dispatch(getTeam())
+            dispatch(getAllPlayers()); 
+        }
+    } , [user , router , authLoading] )
 
     const availableSpots = { GK: 2, DEF: 5, MID: 5, FWD: 3 };
 
@@ -29,8 +50,6 @@ export default function TeamSelection() {
     // Track the initial players to calculate transfers made in this session
     const [initialPlayerIds, setInitialPlayerIds] = useState(new Set());
 
-    useEffect(() => { dispatch(getAllPlayers()); }, [dispatch]);
-    useEffect(() => { dispatch(getTeam()); }, [dispatch]);
 
     useEffect(() => {
         if (my_team && my_team.players) {
@@ -200,7 +219,13 @@ export default function TeamSelection() {
                     </div>
 
                     {/* PITCH COLUMN */}
-                    <div className="w-full">
+                    <div className="w-full space-y-4"> 
+                        {/* CHIPS */}
+                        <div className="grid grid-cols sm:grid-cols-2 md:grid-cols-5 gap-1">
+                            {my_team?.team?.chips.map(({chip_name , used_at})=>
+                                <ChipCard key={chip_name} title={chip_name} used_at={used_at} isAvailble={!transferStats.isUnlimited}/>
+                            )}
+                        </div>  
                         <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[700px] shadow-inner border-4 border-emerald-700">
                             {["GK", "DEF", "MID", "FWD"].map(pos => (
                                 <div key={pos} className="flex flex-wrap justify-center gap-4">

@@ -21,8 +21,11 @@ const MyTeam = {
     } ,
     addNewTransfer : async (id)=>{
         await db.query('UPDATE fantasy_team set availbale_transfers = availbale_transfers + 1 where id_team = ?' , [id])
+    },
+    getChips : async (id)=>{
+        const [rows] = await db.query('SELECT wildcard , triple_captain , bench_boost , jocker , park_the_bus from fantasy_team')
+        return rows
     }
-
 }
 
 
