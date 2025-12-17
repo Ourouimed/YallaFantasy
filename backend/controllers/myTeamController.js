@@ -29,7 +29,7 @@ exports.getTeamSquad = async (req, res) => {
 
         const [team] = await MyTeam.getTeamDetaills(userId)
         if (!team){
-            return res.json({team : {team_name : "" , balance : 100}  , nextDeadline : nextRound , players : {
+            return res.json({team : {team_name : "" , balance : 100 , unlimited_transfers : true , free_transfers : 0}  , nextDeadline : nextRound , players : {
                 GK : [] , DEF : [] , MID : [] , FWD : []
             }})
         }
@@ -38,22 +38,36 @@ exports.getTeamSquad = async (req, res) => {
         const nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id , userId)
         if (nextRoundSquad.length === 0){
             const prevRoundSquad = await MyTeam.getTeamSquad(prevRound?.round_id , userId)
-            const [chips] = await MyTeam.getChips(userId)
-            const chipsArray = Object.entries(chips).map(([key, val]) => ({
-                chip_name: key,
-                used_at: val
-            }));
             if (prevRoundSquad.length ===  0){
-                 return res.json({team : {team_name : "" , balance : 100 , chips : chipsArray}  , nextDeadline : nextRound , players : {
+                 return res.json({team : {team_name : "" , balance : 100 , unlimited_transfers : true , free_transfers : 0}  , nextDeadline : nextRound , players : {
                     GK : [] , DEF : [] , MID : [] , FWD : []
                 }})
             }
 
             await Promise.all(
-                prevRoundSquad.map(({player_id , id_team , purchased_price}) => MyTeam.savePlayer(userId , player_id , id_team , nextRound.round_id , purchased_price )) 
+                prevRoundSquad.map(({player_id , national_team , id_team , purchased_price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , purchased_price )) 
             )
             await MyTeam.addNewTransfer(userId)
+            const nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id , userId)
+            const playersPrices = nextRoundSquad.map(e => Number(e.purchased_price))
+            const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
+            const players = {
+                GK : nextRoundSquad.filter(p => p.position === 'GK') ,
+                DEF : nextRoundSquad.filter(p => p.position === 'DEF') ,
+                MID : nextRoundSquad.filter(p => p.position === 'MID'),
+                FWD : nextRoundSquad.filter(p => p.position === 'FWD')
+            }
+            const [chips] = await MyTeam.getChips(userId)
+            const chipsArray = Object.entries(chips).map(([key, val]) => ({
+                chip_name: key,
+                used_at: val
+            }));
 
+            let unlimited_transfers
+            if (nextRound.round_id === team.start_at) unlimited_transfers = true
+            else unlimited_transfers = false
+            const [team] = await MyTeam.getTeamDetaills(userId)
+            return res.json({team : {team_name : team.team_name, balance : 100 - teamValue , chips : chipsArray , free_transfers : team.available_transfers , unlimited_transfers } , nextDeadline : nextRound , players : players})
         }
 
 
@@ -71,8 +85,14 @@ exports.getTeamSquad = async (req, res) => {
             used_at: val
         }));
 
-        
-        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue , chips : chipsArray} , nextDeadline : nextRound , players : players})
+        let unlimited_transfers
+        if (nextRound.round_id === team.start_at) unlimited_transfers = true
+        else unlimited_transfers = false
+
+
+        const [newTeam] = await MyTeam.getTeamDetaills(userId)
+        console.log(newTeam.available_transfers)
+        return res.json({team : {team_name : newTeam.team_name, balance : 100 - teamValue , chips : chipsArray , free_transfers : newTeam.available_transfers , unlimited_transfers} , nextDeadline : nextRound , players : players})
 
     } catch (err) {
         console.error(err)
@@ -133,7 +153,7 @@ exports.saveTeam = async (req , res)=>{
         const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
         const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
 
-        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue  , team : team.availbale_transfers} , nextDeadline : nextRound , players : players})
+        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue  , team : team.available_transfers} , nextDeadline : nextRound , players : players})
 
 
 

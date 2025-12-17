@@ -20,7 +20,7 @@ const MyTeam = {
                         VALUES (? , ? , ? , ? , ?)` , [id_team , id_player , national_team , round_id , purchased_price ])
     } ,
     addNewTransfer : async (id)=>{
-        await db.query('UPDATE fantasy_team set availbale_transfers = availbale_transfers + 1 where id_team = ?' , [id])
+        await db.query('UPDATE fantasy_team set available_transfers = available_transfers + 1 where id_team = ?' , [id])
     },
     getChips : async (id)=>{
         const [rows] = await db.query('SELECT wildcard , triple_captain , bench_boost , jocker , park_the_bus from fantasy_team')
