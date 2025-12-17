@@ -245,7 +245,7 @@ export default function TeamSelection() {
                 onChange={(e) => setTeamSelection((prev) => ({ ...prev, team_name: e.target.value }))}
               />
               <Button
-                className="!bg-main text-white w-full"
+                className={`!bg-main text-white w-full ${teamSelection.total_selected !== 15 || isLoading ? 'opacity-30' : ''}`}
                 disabled={teamSelection.total_selected !== 15 || isLoading}
                 onClick={handleSaveTeam}
               >

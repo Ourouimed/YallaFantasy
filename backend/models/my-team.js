@@ -15,9 +15,9 @@ const MyTeam = {
         await db.query(`INSERT INTO fantasy_team (id_team , team_name , start_at , captain , vice_captain)
                         VALUES (? , ? , ? , ? , ?)` , [id_team , team_name , start_at , captain , vice_captain])
     },
-    savePlayer : async (id_team , id_player , national_team , round_id , purchased_price )=>{
-        await db.query(`INSERT INTO fantasy_list (id_team , id_player , national_team , round_id , purchased_price )
-                        VALUES (? , ? , ? , ? , ?)` , [id_team , id_player , national_team , round_id , purchased_price ])
+    savePlayer : async (id_team , id_player , national_team , round_id , purchased_price , is_starter)=>{
+        await db.query(`INSERT INTO fantasy_list (id_team , id_player , national_team , round_id , purchased_price , starting_linup)
+                        VALUES (? , ? , ? , ? , ? , ?)` , [id_team , id_player , national_team , round_id , purchased_price , is_starter])
     } ,
     addNewTransfer : async (id)=>{
         await db.query('UPDATE fantasy_team set available_transfers = available_transfers + 1 where id_team = ?' , [id])

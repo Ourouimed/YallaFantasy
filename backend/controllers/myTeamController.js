@@ -36,6 +36,7 @@ exports.getTeamSquad = async (req, res) => {
        
 
         const nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id , userId)
+        console.log(nextRoundSquad.length)
         if (nextRoundSquad.length === 0){
             const prevRoundSquad = await MyTeam.getTeamSquad(prevRound?.round_id , userId)
             if (prevRoundSquad.length ===  0){
@@ -103,114 +104,101 @@ exports.getTeamSquad = async (req, res) => {
 }
 
 
-exports.saveTeam = async (req , res)=>{
-    const token = req.cookies.token
+exports.saveTeam = async (req, res) => {
+    const token = req.cookies.token;
     if (!token) {
-        return res.status(401).json({
-            error: 'Session expired or invalid. Please login again.'
-        })
+        return res.status(401).json({ error: 'Session expired or invalid. Please login again.' });
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET)
-        const userId = decoded.id
-        const rounds = await Rounds.getAllrounds()
-        const { nextRound, prevRound } = getDeadlines(rounds)
-        const { team_name , players , players : { GK , DEF , MID , FWD} , point_hit , transfers_made} = req.body
-        const captain = FWD[0].player_id
-        const vice_captain = MID[0].player_id
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const rounds = await Rounds.getAllrounds();
+        const { nextRound } = getDeadlines(rounds);
+        const { team_name, players: { GK, DEF, MID, FWD }, point_hit, transfers_made } = req.body;
 
+        const captain = FWD[0]?.player_id;
+        const vice_captain = MID[0]?.player_id;
 
-        console.log(GK.length)
-
-        const [ savedTeam ] = await MyTeam.getTeamDetaills(userId)
-        if (savedTeam) {
-                if (transfers_made <= 0){
-                    
-                    const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
-                    const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
-                    let players = [...GK , ...MID , ...DEF , ...FWD]
-
-
-                    return res.json({team : {team_name : savedTeam.team_name, balance : 100 - teamValue  , team : savedTeam.available_transfers} , nextDeadline : nextRound , players : players})
-                }
-                else {
-                    let newTransers = savedTeam.available_transfers > transfers_made ? savedTeam.available_transfers - transfers_made : 0
-                    await MyTeam.updateTotalTransfers(newTransers , userId)
-                    await MyTeam.reducePoints(point_hit , userId)
-
-
-                    const [ newSavedTeam ] = await MyTeam.getTeamDetaills(userId) 
-
-                    let resultss = await MyTeam.clearSquad(nextRound.round_id , userId)
-                    console.log(resultss.affectedRows)
-
-                    const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
-                    const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
-                    let players = [...GK , ...MID , ...DEF , ...FWD]
-
-
-                    await Promise.all(
-                        FWD.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-
-
-                    await Promise.all(
-                        MID.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-
-
-                    await Promise.all(
-                        DEF.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-
-                    await Promise.all(
-                        GK.map(({player_id , national_team , id_team , price }) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-                    
-                    
-
-                     return res.json({team : {team_name : newSavedTeam.team_name, balance : 100 - teamValue  , team : newSavedTeam.available_transfers} , nextDeadline : nextRound , players : players})
-                }
+        // 1. Helper to flatten players and assign starter status
+        // Standard FPL logic: 11 starters, 4 subs. 
+        // We'll mark them based on your incoming arrays.
+        const preparePlayers = () => {
+            const allPlayers = [];
             
+            // Logic: GK[0] is starter, others are subs. 
+            // For others, usually the first X are starters.
+            // Adjust the slice numbers based on your specific roster rules.
+            const processCategory = (list, starterCount) => {
+                list.forEach((p, index) => {
+                    allPlayers.push({
+                        ...p,
+                        is_starter: index < starterCount ? 1 : 0
+                    });
+                });
+            };
+
+            processCategory(GK, 1);
+            processCategory(DEF, 4); // Example: 4 starters
+            processCategory(MID, 4); // Example: 4 starters
+            processCategory(FWD, 2); // Example: 2 starters
+            return allPlayers;
+        };
+
+        const flatPlayers = preparePlayers();
+        const teamValue = flatPlayers.reduce((acc, p) => acc + Number(p.price || p.purchased_price), 0);
+
+        const [savedTeam] = await MyTeam.getTeamDetaills(userId);
+
+        if (savedTeam) {
+            if (transfers_made <= 0) {
+                return res.json({
+                    team: { team_name: savedTeam.team_name, balance: 100 - teamValue, team: savedTeam.available_transfers },
+                    nextDeadline: nextRound,
+                    players: flatPlayers
+                });
+            } else {
+                let newTransfers = savedTeam.available_transfers > transfers_made ? savedTeam.available_transfers - transfers_made : 0;
+                await MyTeam.updateTotalTransfers(newTransfers, userId);
+                await MyTeam.reducePoints(point_hit, userId);
+
+                await MyTeam.clearSquad(nextRound.round_id, userId);
+
+                // Save all players with the is_starter flag
+                await Promise.all(
+                    flatPlayers.map(p => 
+                        MyTeam.savePlayer(userId, p.player_id, p.national_team, nextRound.round_id, p.price, p.is_starter)
+                    )
+                );
+
+                const [updatedTeam] = await MyTeam.getTeamDetaills(userId);
+                return res.json({
+                    team: { team_name: updatedTeam.team_name, balance: 100 - teamValue, team: updatedTeam.available_transfers },
+                    nextDeadline: nextRound,
+                    players: flatPlayers
+                });
+            }
         }
 
+        // Logic for New Team Creation
+        await MyTeam.createTeam(userId, team_name, nextRound.round_id, captain, vice_captain);
+        await Promise.all(
+            flatPlayers.map(p => 
+                MyTeam.savePlayer(userId, p.player_id, p.national_team, nextRound.round_id, p.price, p.is_starter)
+            )
+        );
 
-        await MyTeam.createTeam(userId , team_name , nextRound.round_id , captain , vice_captain) 
-        const [ team ] = await MyTeam.getTeamDetaills(userId)
-                    await Promise.all(
-                        FWD.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
+        const [newTeam] = await MyTeam.getTeamDetaills(userId);
+        return res.json({
+            team: { team_name: newTeam.team_name, balance: 100 - teamValue, team: newTeam.available_transfers },
+            nextDeadline: nextRound,
+            players: flatPlayers
+        });
 
-
-                    await Promise.all(
-                        MID.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-
-
-                    await Promise.all(
-                        DEF.map(({player_id , national_team , id_team , price}) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-
-                    await Promise.all(
-                        GK.map(({player_id , national_team , id_team , price }) => MyTeam.savePlayer(id_team , player_id , national_team , nextRound.round_id , price ))
-                    )
-        
-
-        const playersPrices = [...GK , ...MID , ...DEF , ...FWD].map(e => Number(e.purchased_price))
-        const teamValue = playersPrices.reduce((a , b)=> a + b , 0)
-
-        return res.json({team : {team_name : team.team_name, balance : 100 - teamValue  , team : team.available_transfers} , nextDeadline : nextRound , players : players})
-
-
-
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to save team squad' });
     }
-    catch (err) {
-        console.error(err)
-        return res.status(500).json({
-            error: 'Failed to save team squad'
-        })
-    }
-}
+};
 
 
