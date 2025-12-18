@@ -244,6 +244,66 @@ exports.getPickedTeam = async (req , res)=>{
     }
 }
 
+exports.savePickedTeam = async (req , res)=>{
+    const token = req.cookies.token;
+
+    if (!token) {
+        return res.status(401).json({ error: 'Session expired. Please login again.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET)
+        const userId = decoded.id
+
+
+        const rounds = await Rounds.getAllrounds()
+        const { nextRound, prevRound } = getDeadlines(rounds)
+
+
+
+        const { players : {startingLinup , bench} , team : { captain , vice_captain}} = req.body
+        await MyTeam.makeCaptain(captain , userId)
+
+
+        await MyTeam.makeViceCaptain(vice_captain , userId)
+        await Promise.all(
+            startingLinup.map(p=>{
+                MyTeam.isStarter(p.round_id , p.id_player , p.id_team , true)
+            })
+        )
+
+
+        await Promise.all(
+            bench.map(p=>{
+                MyTeam.isStarter(p.round_id , p.id_player , p.id_team , false)
+            })
+        )
+
+        const PickedTeam = await MyTeam.getPickedTeam(nextRound?.round_id , userId)
+        if (PickedTeam.length === 0){
+            return res.json({})
+        }
+
+        const starters_players = PickedTeam.filter(e => e.starting_linup)
+        const bench_players = PickedTeam.filter(e => !e.starting_linup)
+        const players = {startingLinup : starters_players , bench : bench_players}
+
+        const [chips] = await MyTeam.getChips(userId)
+        const chipsArray = Object.entries(chips).map(([key, val]) => ({
+            chip_name: key,
+            used_at: val
+        }));
+
+        const [team] = await MyTeam.getTeamDetaills(userId)
+        const unlimited_transfers = (nextRound.round_id === team.start_at);
+        return res.json({team : { team_name : team.team_name  , chips : chipsArray , captain : team.captain , vice_captain : team.vice_captain , unlimited_transfers} , players, nextDeadline : nextRound})
+    }
+
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: 'Failed to save team squad' });
+    }
+}
 
 
 

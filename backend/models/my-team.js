@@ -44,6 +44,20 @@ const MyTeam = {
         const [res] = await db.query('DELETE FROM fantasy_list where round_id = ? AND id_team = ?' , [round_id , id_team])
         return res
     },
+
+    isStarter : async (round_id , id_player , id_team , isStarter)=>{
+        const [res] = await db.query('UPDATE fantasy_list set starting_linup = ? where round_id = ? AND id_player = ? AND id_team = ?' , [isStarter , round_id , id_player , id_team])
+        return res
+    } , 
+    makeCaptain : async (id_player , id_team)=>{
+        const [res] = await db.query('UPDATE fantasy_team set captain = ? where id_team = ?' , [id_player , id_team])
+        return res
+    },
+
+    makeViceCaptain : async (id_player , id_team)=>{
+        const [res] = await db.query('UPDATE fantasy_team set vice_captain = ? where id_team = ?' , [id_player , id_team])
+        return res
+    }
     
 }
 

@@ -13,8 +13,18 @@ export const getTeam = createAsyncThunk('my-team/get' , async (_ , thunkAPI)=>{
 
 export const saveTeam = createAsyncThunk('my-team/save' , async (data , thunkAPI)=>{
     try {
-        console.log('test')
         return await myTeamService.saveTeam(data)
+    }
+    catch (err){
+        console.log(err)
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
+
+export const savePickedTeam = createAsyncThunk('my-team/pick-team/save' , async (data , thunkAPI)=>{
+    try {
+        return await myTeamService.savePickedTeam(data)
     }
     catch (err){
         console.log(err)
@@ -85,6 +95,22 @@ export const myTeamSlice= createSlice({
             console.log(action.payload)
         })
         .addCase(saveTeam.rejected , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+
+
+
+         // save picked team 
+        .addCase(savePickedTeam.pending , (state)=>{
+            state.isLoading= true 
+        })
+        .addCase(savePickedTeam.fulfilled , (state , action)=>{
+            state.isLoading = false
+            state.picked_team = action.payload
+            console.log(action.payload)
+        })
+        .addCase(savePickedTeam.rejected , (state , action)=>{
             state.isLoading = false
             console.log(action.payload)
         })

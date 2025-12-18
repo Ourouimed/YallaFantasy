@@ -23,6 +23,12 @@ const saveTeam = async (data)=>{
 }
 
 
+const savePickedTeam = async (data)=>{
+    const respone = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/my-team/pick-team/save` , data)
+    return respone.data
+}
 
 
-export const myTeamService = { getTeam , saveTeam , getPickedTeam}
+
+
+export const myTeamService = { getTeam , saveTeam , getPickedTeam , savePickedTeam}
