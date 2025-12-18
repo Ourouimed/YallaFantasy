@@ -7,7 +7,7 @@ import { verifySession } from "@/store/features/auth/authSlice";
 import { getPickedTeam } from "@/store/features/my-team/myTeamSlice";
 import { formatLocalTime } from "@/utils/formatDate";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PickTeamPage() {
@@ -16,6 +16,12 @@ export default function PickTeamPage() {
     const dispatch = useDispatch();
     const router = useRouter();
     const { openPopup } = usePopup();
+
+    const [myTeam , setMyTeam] = useState({
+        team : null , 
+        players : null, 
+        nextDeadline : null
+    })
 
     // 1. Verify Session on Mount
     useEffect(() => {
@@ -33,12 +39,23 @@ export default function PickTeamPage() {
         }
     }, [user, authLoading, dispatch, router]);
 
+
+    useEffect(()=>{
+        if (picked_team && picked_team.team) {
+            setMyTeam({
+                team : picked_team.team, 
+                players : picked_team.players, 
+                nextDeadline : picked_team.nextDeadline
+            })
+        }
+    } , [picked_team])
+
     // 3. Memoize Lineup Structure
     const lineup = useMemo(() => {
-        if (!picked_team?.players) {
+        if (!myTeam?.players) {
             return { pitch: { GK: [], DEF: [], MID: [], FWD: [] }, bench: [] };
         }
-        const starters = picked_team.players.startingLinup || [];
+        const starters = myTeam.players.startingLinup || [];
         return {
             pitch: {
                 GK: starters.filter(p => p.position === 'GK'),
@@ -46,15 +63,31 @@ export default function PickTeamPage() {
                 MID: starters.filter(p => p.position === 'MID'),
                 FWD: starters.filter(p => p.position === 'FWD'),
             },
-            bench: picked_team.players.bench || []
+            bench: myTeam.players.bench || []
         };
-    }, [picked_team]);
+    }, [myTeam]);
 
     const handleOpenPlayerStats = (player) => {
         openPopup({ 
             title: 'Player stats', 
             component: 'PlayerStatsPopup', 
-            props: { player , isCaptain : picked_team?.team?.captain === player.player_id , isViceCaptain : picked_team?.team?.vice_captain === player.player_id} 
+            props: { 
+                player , 
+                isCaptain : myTeam?.team?.captain === player.player_id , 
+                isViceCaptain : myTeam?.team?.vice_captain === player.player_id ,
+                onSetCaptain : (e)=>{
+                    setMyTeam(prev => ({...prev , team : {
+                        ...prev.team ,
+                        captain : e.player_id
+                    }}))
+                } ,
+                onSetViceCaptain : (e)=>{
+                    setMyTeam(prev => ({...prev , team : {
+                        ...prev.team ,
+                        vice_captain : e.player_id
+                    }}))
+                }
+            } 
         });
     };
 
@@ -69,16 +102,16 @@ export default function PickTeamPage() {
                 <div className="flex justify-between items-end mb-4 px-2">
                     <div>
                         <h1 className="text-2xl font-black italic uppercase text-slate-800">
-                            {picked_team?.team?.team_name || "My Team"}
+                            {myTeam?.team?.team_name || "My Team"}
                         </h1>
                         <p className="text-sm text-slate-500 font-medium">
-                            {picked_team?.nextDeadline?.round_title} (ID: {picked_team?.nextDeadline?.round_id})
+                            {myTeam?.nextDeadline?.round_title} (ID: {myTeam?.nextDeadline?.round_id})
                         </p>
                     </div>
                     <div className="text-right">
                         <p className="text-[10px] uppercase font-bold text-slate-400">Next Deadline</p>
                         <p className="text-sm font-bold text-rose-600">
-                            {picked_team?.nextDeadline?.round_deadline ? formatLocalTime(picked_team?.nextDeadline?.round_deadline) : "TBD"}
+                            {myTeam?.nextDeadline?.round_deadline ? formatLocalTime(myTeam?.nextDeadline?.round_deadline) : "TBD"}
                         </p>
                     </div>
                 </div>
@@ -87,14 +120,14 @@ export default function PickTeamPage() {
                 <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[850px] shadow-inner border-4 border-emerald-700">
                     
                     {/* Chips Display */}
-                    {picked_team?.team?.chips && (
+                    {myTeam?.team?.chips && (
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-10">
-                            {picked_team.team.chips.map(({ chip_name, used_at }) => (
+                            {myTeam.team.chips.map(({ chip_name, used_at }) => (
                                 <ChipCard
                                     key={chip_name}
                                     title={chip_name}
                                     used_at={used_at}
-                                    isAvailble={picked_team?.team?.unlimited_transfers}
+                                    isAvailble={myTeam?.team?.unlimited_transfers}
                                 />
                             ))}
                         </div>
@@ -112,8 +145,8 @@ export default function PickTeamPage() {
                                     >
                                         <PlayerLinupCard 
                                             player={player} 
-                                            isCaptain={picked_team?.team?.captain === player.player_id} 
-                                            isViceCaptain={picked_team?.team?.vice_captain === player.player_id}
+                                            isCaptain={myTeam?.team?.captain === player.player_id} 
+                                            isViceCaptain={myTeam?.team?.vice_captain === player.player_id}
                                             
                                         />
                                     </div>
@@ -138,8 +171,8 @@ export default function PickTeamPage() {
                                     <PlayerLinupCard 
                                         player={player} 
                                         isBench={true} 
-                                        isCaptain={picked_team?.team?.captain === player.player_id} 
-                                        isViceCaptain={picked_team?.team?.vice_captain === player.player_id}
+                                        isCaptain={myTeam?.team?.captain === player.player_id} 
+                                        isViceCaptain={myTeam?.team?.vice_captain === player.player_id}
                                         
                                     />
                                 </div>
