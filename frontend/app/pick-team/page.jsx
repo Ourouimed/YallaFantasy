@@ -2,6 +2,7 @@
 import Header from "@/components/sections/Header";
 import ChipCard from "@/components/ui/cards/ChipCard";
 import PlayerLinupCard from "@/components/ui/cards/PlayerLinupCard";
+import { usePopup } from "@/hooks/usePopup";
 import { verifySession } from "@/store/features/auth/authSlice";
 import { getPickedTeam } from "@/store/features/my-team/myTeamSlice";
 import { formatLocalTime } from "@/utils/formatDate";
@@ -14,11 +15,14 @@ export default function PickTeamPage() {
     const { picked_team, isLoading } = useSelector(state => state.myTeam);
     const dispatch = useDispatch();
     const router = useRouter();
+    const { openPopup } = usePopup();
 
+    // 1. Verify Session on Mount
     useEffect(() => {
         dispatch(verifySession());
     }, [dispatch]);
 
+    // 2. Fetch Team data once Authenticated
     useEffect(() => {
         if (!authLoading && !user) {
             router.push("/login");
@@ -29,6 +33,7 @@ export default function PickTeamPage() {
         }
     }, [user, authLoading, dispatch, router]);
 
+    // 3. Memoize Lineup Structure
     const lineup = useMemo(() => {
         if (!picked_team?.players) {
             return { pitch: { GK: [], DEF: [], MID: [], FWD: [] }, bench: [] };
@@ -44,6 +49,14 @@ export default function PickTeamPage() {
             bench: picked_team.players.bench || []
         };
     }, [picked_team]);
+
+    const handleOpenPlayerStats = (player) => {
+        openPopup({ 
+            title: 'Player stats', 
+            component: 'PlayerStatsPopup', 
+            props: { player , isCaptain : picked_team?.team?.captain === player.player_id , isViceCaptain : picked_team?.team?.vice_captain === player.player_id} 
+        });
+    };
 
     if (isLoading) return <div className="p-20 text-center text-white">Loading Pitch...</div>;
 
@@ -70,6 +83,7 @@ export default function PickTeamPage() {
                     </div>
                 </div>
 
+                {/* Pitch Background */}
                 <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[850px] shadow-inner border-4 border-emerald-700">
                     
                     {/* Chips Display */}
@@ -86,12 +100,23 @@ export default function PickTeamPage() {
                         </div>
                     )}
 
-                    {/* Pitch Rows */}
-                    <div className="flex-1 flex flex-col justify-around py-8">
+                    {/* Pitch Rows (Starters) */}
+                    <div className="flex-1 flex flex-col justify-around py-8 gap-4">
                         {['GK', 'DEF', 'MID', 'FWD'].map((pos) => (
                             <div key={pos} className="flex justify-center gap-2 md:gap-8">
                                 {lineup.pitch[pos].map((player) => (
-                                    <PlayerLinupCard key={player.player_id} player={player} />
+                                    <div 
+                                        key={player.player_id} 
+                                        className='cursor-pointer' 
+                                        onClick={() => handleOpenPlayerStats(player)}
+                                    >
+                                        <PlayerLinupCard 
+                                            player={player} 
+                                            isCaptain={picked_team?.team?.captain === player.player_id} 
+                                            isViceCaptain={picked_team?.team?.vice_captain === player.player_id}
+                                            
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ))}
@@ -102,11 +127,22 @@ export default function PickTeamPage() {
                         <p className="text-white text-center text-[10px] font-bold uppercase tracking-widest mb-3 opacity-50">Bench</p>
                         <div className="flex justify-center gap-4">
                             {lineup.bench.map((player) => (
-                                <PlayerLinupCard 
-                                    key={player.player_id} 
-                                    player={player} 
-                                    isBench={true} 
-                                />
+                                <div 
+                                    className="text-center cursor-pointer" 
+                                    onClick={() => handleOpenPlayerStats(player)} 
+                                    key={player.player_id}
+                                >
+                                    <span className="text-white mb-2 block text-xs">
+                                        {player.position}
+                                    </span>
+                                    <PlayerLinupCard 
+                                        player={player} 
+                                        isBench={true} 
+                                        isCaptain={picked_team?.team?.captain === player.player_id} 
+                                        isViceCaptain={picked_team?.team?.vice_captain === player.player_id}
+                                        
+                                    />
+                                </div>
                             ))}
                         </div>
                     </div>
