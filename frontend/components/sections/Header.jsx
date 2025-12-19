@@ -74,7 +74,7 @@ export default function Header({isSticky = false}) {
         )}
       </div>
 
-      <button className="md:hidden" onClick={() => setOpen(!open)}>
+      <button className="md:hidden cursor-pointer" onClick={() => setOpen(!open)}>
         {open ? <X size={28} /> : <Menu size={28} />}
       </button>
 
@@ -92,7 +92,7 @@ export default function Header({isSticky = false}) {
           ))}
 
           {!user ? (
-            <Button isBtn href="/login" className="mt-2">
+            <Button  href="/login" className="mt-2">
               Get Started
             </Button>
           ) : (
