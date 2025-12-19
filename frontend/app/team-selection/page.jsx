@@ -24,7 +24,6 @@ export default function TeamSelection() {
   const toast = useToast();
   const router = useRouter();
 
-  // --- FILTER & SORT STATE ---
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPos, setFilterPos] = useState("ALL");
   const [filterTeam, setFilterTeam] = useState("ALL");
@@ -108,7 +107,6 @@ export default function TeamSelection() {
   }, [players, searchTerm, filterPos, filterTeam, sortBy]);
 
   const transferStats = useMemo(() => {
-    // UPDATED: Using server-side unlimited flag
     const isUnlimited = my_team?.team?.unlimited_transfers;
 
     const currentFlatPlayers = Object.values(teamSelection.players).flat();
@@ -116,7 +114,6 @@ export default function TeamSelection() {
       (id) => !currentFlatPlayers.find((p) => p.player_id === id)
     ).length;
 
-    // UPDATED: Using server-side free transfers count
     const freeTransfers = my_team?.team?.free_transfers || 0;
     const extraTransfers = Math.max(0, playersOutCount - freeTransfers);
     const pointHit = isUnlimited ? 0 : extraTransfers * 4;
@@ -186,58 +183,101 @@ export default function TeamSelection() {
       <Header isSticky />
       <div className="px-4 md:px-20 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-6">
-          {/* TOP INFO BAR */}
-          <div className="lg:col-span-full p-4 border rounded-lg bg-main/5 border-main/30">
-            <div className="flex justify-between items-center">
-              <div>
-                <h4 className="text-lg font-bold">
-                  Round: {my_team?.nextDeadline?.round_title} -{" "}
-                  {formatLocalTime(my_team?.nextDeadline?.round_deadline)}
-                </h4>
-                <div className="flex gap-6 mt-2 items-center">
-                  <p className="text-sm text-gray-500">
-                    Bank: <span className="font-bold text-green-600">${teamSelection.bank}m</span>
-                  </p>
-                  
-                  {/* UPDATED TRANSFER UI */}
-                  <div className="flex gap-4 items-center border-l border-gray-300 pl-4">
-                    <div className="flex gap-2 items-center">
-                      <span className="text-xs uppercase text-gray-400 font-semibold tracking-wider">Free Transfers:</span>
-                      <span className="text-sm font-bold text-gray-700">
-                        {transferStats.isUnlimited ? (
-                          <Infinity size={20} className="text-third" />
-                        ) : (
-                          transferStats.freeTransfers
-                        )}
-                      </span>
-                    </div>
 
-                    {!transferStats.isUnlimited && (
-                      <div className="flex gap-2 items-center">
-                        <span className="text-xs uppercase text-gray-400 font-semibold tracking-wider">Made:</span>
-                        <span className={`text-sm font-bold ${transferStats.playersOutCount > transferStats.freeTransfers ? 'text-red-500' : 'text-gray-700'}`}>
-                          {transferStats.playersOutCount}
-                        </span>
-                      </div>
-                    )}
+          {/* PITCH COLUMN (mobile first) */}
+          <div className="order-first lg:order-none w-full space-y-4">
+            {my_team?.team?.chips && (
+              <div className="grid grid-cols sm:col-reverse sm:grid-cols-2 md:grid-cols-5 gap-1">
+                {my_team.team.chips.map(({ chip_name, used_at }) => (
+                  <ChipCard
+                    key={chip_name}
+                    title={chip_name}
+                    used_at={used_at}
+                    isAvailble={!transferStats.isUnlimited}
+                  />
+                ))}
+              </div>
+            )}
 
-                    {transferStats.pointHit > 0 && (
-                      <div className="bg-red-50 px-2 py-0.5 rounded border border-red-200">
-                        <span className="text-xs font-bold text-red-600">Cost: -{transferStats.pointHit}pts</span>
+            <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[700px] shadow-inner border-4 border-emerald-700">
+              {["GK", "DEF", "MID", "FWD"].map((pos) => (
+                <div key={pos} className="flex flex-wrap justify-center gap-4">
+                  {getLineupWithEmpty(pos).map((p, i) =>
+                    p ? (
+                      <div
+                        key={p.player_id}
+                        onClick={() => handleRemovePlayerFromSquad(p)}
+                        className="cursor-pointer hover:scale-105 transition-transform"
+                      >
+                        <PlayerLinupCard player={p} />
                       </div>
-                    )}
-                  </div>
+                    ) : (
+                      <div
+                        key={i}
+                        className="size-16 rounded-full border-2 border-dashed border-white/20 bg-black/5 flex items-center justify-center text-white/40 text-xs font-bold"
+                      >
+                        {pos}
+                      </div>
+                    )
+                  )}
                 </div>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-black text-main">{teamSelection.total_selected} / 15</span>
-                <p className="text-xs uppercase text-gray-400">Players Selected</p>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* LIST COLUMN */}
-          <div className="space-y-3">
+          <div className="order-last lg:order-none space-y-3">
+            {/* TOP INFO BAR */}
+            <div className="lg:col-span-full p-4 border rounded-lg bg-main/5 border-main/30">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-lg font-bold">
+                    Round: {my_team?.nextDeadline?.round_title} -{" "}
+                    {formatLocalTime(my_team?.nextDeadline?.round_deadline)}
+                  </h4>
+                  <div className="flex gap-6 mt-2 items-center">
+                    <p className="text-sm text-gray-500">
+                      Bank: <span className="font-bold text-green-600">${teamSelection.bank.toFixed(2)}m</span>
+                    </p>
+                    
+                    {/* TRANSFER UI */}
+                    <div className="flex gap-4 items-center border-l border-gray-300 pl-4">
+                      <div className="flex gap-2 items-center">
+                        <span className="text-xs uppercase text-gray-400 font-semibold tracking-wider">Free Transfers:</span>
+                        <span className="text-sm font-bold text-gray-700">
+                          {transferStats.isUnlimited ? (
+                            <Infinity size={20} className="text-third" />
+                          ) : (
+                            transferStats.freeTransfers
+                          )}
+                        </span>
+                      </div>
+
+                      {!transferStats.isUnlimited && (
+                        <div className="flex gap-2 items-center">
+                          <span className="text-xs uppercase text-gray-400 font-semibold tracking-wider">Made:</span>
+                          <span className={`text-sm font-bold ${transferStats.playersOutCount > transferStats.freeTransfers ? 'text-red-500' : 'text-gray-700'}`}>
+                            {transferStats.playersOutCount}
+                          </span>
+                        </div>
+                      )}
+
+                      {transferStats.pointHit > 0 && (
+                        <div className="bg-red-50 px-2 py-0.5 rounded border border-red-200">
+                          <span className="text-xs font-bold text-red-600">Cost: -{transferStats.pointHit}pts</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-2xl font-black text-main">{teamSelection.total_selected} / 15</span>
+                  <p className="text-xs uppercase text-gray-400">Players Selected</p>
+                </div>
+              </div>
+            </div>
+
+            {/* TEAM NAME + SAVE */}
             <div className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm p-4 space-y-2">
               <Input
                 placeholder="Your team name"
@@ -255,6 +295,7 @@ export default function TeamSelection() {
               </Button>
             </div>
 
+            {/* AVAILABLE PLAYERS LIST */}
             <div className="border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm">
               <div className="p-4 border-b border-gray-300 bg-gray-50 space-y-3">
                 <div className="flex justify-between items-center">
@@ -293,47 +334,6 @@ export default function TeamSelection() {
             </div>
           </div>
 
-          {/* PITCH COLUMN */}
-          <div className="w-full space-y-4">
-            {my_team?.team?.chips && (
-              <div className="grid grid-cols sm:col-reverse sm:grid-cols-2 md:grid-cols-5 gap-1">
-                {my_team.team.chips.map(({ chip_name, used_at }) => (
-                  <ChipCard
-                    key={chip_name}
-                    title={chip_name}
-                    used_at={used_at}
-                    isAvailble={!transferStats.isUnlimited}
-                  />
-                ))}
-              </div>
-            )}
-
-            
-            <div className="relative bg-emerald-600 p-6 rounded-2xl flex flex-col justify-between min-h-[700px] shadow-inner border-4 border-emerald-700">
-              {["GK", "DEF", "MID", "FWD"].map((pos) => (
-                <div key={pos} className="flex flex-wrap justify-center gap-4">
-                  {getLineupWithEmpty(pos).map((p, i) =>
-                    p ? (
-                      <div
-                        key={p.player_id}
-                        onClick={() => handleRemovePlayerFromSquad(p)}
-                        className="cursor-pointer hover:scale-105 transition-transform"
-                      >
-                        <PlayerLinupCard player={p} />
-                      </div>
-                    ) : (
-                      <div
-                        key={i}
-                        className="size-16 rounded-full border-2 border-dashed border-white/20 bg-black/5 flex items-center justify-center text-white/40 text-xs font-bold"
-                      >
-                        {pos}
-                      </div>
-                    )
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </>

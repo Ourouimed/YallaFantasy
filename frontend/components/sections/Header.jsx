@@ -99,7 +99,7 @@ export default function Header({isSticky = false}) {
             <div className="mt-3">
               <a href="/profile" className="block py-2">Profile</a>
               <a href="/dashboard" className="block py-2">Dashboard</a>
-              <button className="block py-2 text-left w-full">Logout</button>
+              <button className="block py-2 text-left w-full" onClick={handleLogout}>Logout</button>
             </div>
           )}
         </div>
