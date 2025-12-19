@@ -9,6 +9,7 @@ import roundsReducer from "./features/rounds/roundsSlice";
 import matchesReducer from "./features/matches/matchesSlice";
 import settingsReducer from "./features/settings/settingsSlice";
 import myTeamReducer from "./features/my-team/myTeamSlice";
+import leagueReducer from "./features/leagues/leagueSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,7 +21,8 @@ export const store = configureStore({
     rounds: roundsReducer,
     matches: matchesReducer,
     settings: settingsReducer,
-    myTeam: myTeamReducer
+    myTeam: myTeamReducer ,
+    leagues : leagueReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

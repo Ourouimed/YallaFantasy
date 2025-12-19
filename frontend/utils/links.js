@@ -15,14 +15,6 @@ export const menu = [
         name : 'How to play'
     },
     {
-        url : '/groups',
-        name : 'Groups'
-    },
-    {
-        url : '/matches',
-        name : 'Matches'
-    },
-    {
         url : '/leagues',
         name : 'Leagues'
     }

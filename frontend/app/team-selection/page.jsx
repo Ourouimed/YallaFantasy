@@ -296,7 +296,7 @@ export default function TeamSelection() {
           {/* PITCH COLUMN */}
           <div className="w-full space-y-4">
             {my_team?.team?.chips && (
-              <div className="grid grid-cols sm:grid-cols-2 md:grid-cols-5 gap-1">
+              <div className="grid grid-cols sm:col-reverse sm:grid-cols-2 md:grid-cols-5 gap-1">
                 {my_team.team.chips.map(({ chip_name, used_at }) => (
                   <ChipCard
                     key={chip_name}

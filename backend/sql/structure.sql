@@ -120,3 +120,21 @@ CREATE TABLE fantasy_list (
     FOREIGN KEY (national_team) REFERENCES teams(team_id),
     FOREIGN KEY (round_id) REFERENCES rounds(round_id)
 );
+
+
+
+CREATE table leagues (
+    id_league varchar(10) PRIMARY key ,
+    league_name varchar(50) NOT NULL,
+    created_at timestamp default CURRENT_TIMESTAMP ,
+    created_by char(36),
+    FOREIGN key (created_by) REFERENCES users(id)
+);
+
+
+create table league_members (
+    id_league varchar(10) NOT NULL,
+    id_team char(36) NOT NULL , 
+    FOREIGN key (id_league) REFERENCES leagues(id_league),
+    FOREIGN key (id_team) REFERENCES users(id_team)
+);

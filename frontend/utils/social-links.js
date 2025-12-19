@@ -6,14 +6,6 @@ export const socialLinks = [
         url : 'https://instagram.com/yalla.fanatsy',
         icon : Instagram
     },
-    {
-        name : 'facebook',
-        url : 'https://facebook.com/yalla.fanatsy',
-        icon : Facebook
-    },
-    {
-        name : 'X',
-        url : 'https://x.com/yalla.fanatsy',
-        icon : TwitterIcon
-    }
+    
+    
 ]

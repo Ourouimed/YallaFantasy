@@ -26,7 +26,7 @@ exports.getTeamSquad = async (req, res) => {
         const [team] = await MyTeam.getTeamDetaills(userId);
         if (!team) {
             return res.json({
-                team: { team_name: "", balance: 100, unlimited_transfers: true, free_transfers: 0 },
+                team: null,
                 nextDeadline: nextRound,
                 PrevDeadline: prevRound,
                 players: { GK: [], DEF: [], MID: [], FWD: [] }

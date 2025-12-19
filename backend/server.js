@@ -12,6 +12,9 @@ const roundsRouter = require('./routes/rounds')
 const matchesRouter = require('./routes/matches')
 const settingsRouter = require('./routes/settings')
 const myTeamRouter = require('./routes/my-team')
+const leagueRouter = require('./routes/leagues')
+
+
 
 const corsOptions = require('./middelware/corsOptions')
 const cookieParser = require('cookie-parser');
@@ -30,14 +33,15 @@ app.use(cookieParser());
 
 
 // routes
-app.use('/api/auth' , authRouter)
-app.use('/api/teams' , teamsRouter)
-app.use('/api/players' , playersRouter)
-app.use('/api/rounds' , roundsRouter)
-app.use('/api/matches' , matchesRouter)
-app.use('/api/settings' , settingsRouter)
-app.use('/api/my-team' , myTeamRouter)
+app.use('/api/auth', authRouter)
+app.use('/api/teams', teamsRouter)
+app.use('/api/players', playersRouter)
+app.use('/api/rounds', roundsRouter)
+app.use('/api/matches', matchesRouter)
+app.use('/api/settings', settingsRouter)
+app.use('/api/my-team', myTeamRouter)
+app.use('/api/leagues', leagueRouter)
 
-app.listen(PORT , ()=>{
+app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`)
 })
