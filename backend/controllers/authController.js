@@ -5,8 +5,7 @@ const { sendVerificationEmail } = require("../lib/send-email");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 
-const uuid = require('uuid');
-const uuidv4 = uuid.v4;
+const { v4: uuidv4 } = require('uuid');
 
 exports.register = async (req, res) => {
     const { email, password, fullname } = req.body
