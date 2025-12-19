@@ -5,9 +5,8 @@ import { ArrowRight } from "lucide-react";
 export default function Hero() {
   return (
     <section id="hero" className="min-h-screen bg-gradient-to-r from-second to-main text-white flex items-center">
-      <div className="mx-auto px-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div className="mx-auto px-2 md:px-20 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="text-center md:text-left">
-          <span></span>
           <h1 className="text-4xl md:text-6xl font-bold mb-4">
             Build Your <span className="text-third">Dream Team</span>
           </h1>
@@ -15,7 +14,7 @@ export default function Hero() {
             Join Africa's biggest fantasy football competition. Pick your squad, earn points, and dominate the leaderboard.
           </p>
           <Button className="!bg-third" isLink href='/login'>
-           Get started Now <ArrowRight/>
+           Get started For Free <ArrowRight/>
           </Button>
         </div>
         

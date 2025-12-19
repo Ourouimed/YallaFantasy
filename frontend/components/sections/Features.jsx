@@ -3,7 +3,7 @@ import FeaturesCard from "../ui/cards/FeaturesCard";
 
 export default function Features() {
   return (
-    <section id="features" className="p-20 bg-gray-100">
+    <section id="features" className="p-2 md:p-20 bg-gray-100">
       <div className="mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">
           Why Play Yalla<span className="text-third">Fantasy</span>?

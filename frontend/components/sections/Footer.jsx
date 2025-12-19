@@ -27,7 +27,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-gray-700 px-20 py-4 text-center flex items-center justify-between">
+        <div className="border-t border-gray-700 px-20 py-4 text-center flex flex-col md:flex-row gap-2 items-center justify-between">
           <p>&copy; {new Date().getFullYear()} YallaFantasy. All rights reserved.</p>
           <ul className="inline-flex items-center gap-1">
             {socialLinks.map(({name , url , icon : Icon})=> <li key={name}>
