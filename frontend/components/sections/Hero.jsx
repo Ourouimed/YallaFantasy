@@ -14,19 +14,19 @@ export default function Hero() {
           <p className="text-lg md:text-xl mb-6">
             Join Africa's biggest fantasy football competition. Pick your squad, earn points, and dominate the leaderboard.
           </p>
-          <Button className="!bg-third">
-           Get started For Free <ArrowRight/>
+          <Button className="!bg-third" isLink href='/login'>
+           Get started Now <ArrowRight/>
           </Button>
         </div>
         
         <div className="flex justify-center md:justify-end">
-          <Image
+          {/* <Image
             width={300}
             height={300}
             src="/assets/images/linup.png" 
             alt="AFCON Fantasy Game Illustration" 
             className="w-full max-w-md"
-          />
+          /> */}
         </div>
       </div>
     </section>

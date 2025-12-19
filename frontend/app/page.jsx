@@ -24,7 +24,7 @@ function EmailVerificationHandler() {
       console.log("Dispatching email verification for ID:", id);
       dispatch(verifyEmail(id));
 
-      // Removes the query parameter from the URL after dispatching
+      
       router.replace("/");
     }
   }, [id, dispatch, router]);
