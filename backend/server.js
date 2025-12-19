@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const http = require('http');
 
 // routes
 const authRouter = require('./routes/auth')
@@ -20,10 +19,6 @@ const corsOptions = require('./middelware/corsOptions')
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const PORT = 3001
-
-
-const server = http.createServer(app);
-server.timeout = 500000;
 
 app.use(express.json())
 app.use(cors(corsOptions))
