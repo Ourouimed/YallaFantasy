@@ -1,5 +1,5 @@
 const Auth = require("../models/auth")
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const { sendVerificationEmail } = require("../lib/send-email");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
