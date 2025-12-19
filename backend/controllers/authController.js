@@ -3,7 +3,10 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken');
 const { sendVerificationEmail } = require("../lib/send-email");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
-const { v4: uuidv4 } = require('uuid');
+
+
+const uuid = require('uuid');
+const uuidv4 = uuid.v4;
 
 exports.register = async (req, res) => {
     const { email, password, fullname } = req.body
