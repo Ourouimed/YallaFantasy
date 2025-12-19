@@ -37,6 +37,11 @@ app.use('/api/settings', settingsRouter)
 app.use('/api/my-team', myTeamRouter)
 app.use('/api/leagues', leagueRouter)
 
-// app.listen(PORT, () => {
-//     console.log(`server running on port ${PORT}`)
-// })
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`server running on port ${PORT}`)
+    })
+}
+
+
+module.exports = app
