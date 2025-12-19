@@ -37,6 +37,6 @@ app.use('/api/settings', settingsRouter)
 app.use('/api/my-team', myTeamRouter)
 app.use('/api/leagues', leagueRouter)
 
-app.listen(PORT, () => {
-    console.log(`server running on port ${PORT}`)
-})
+// app.listen(PORT, () => {
+//     console.log(`server running on port ${PORT}`)
+// })
