@@ -182,12 +182,12 @@ export default function TeamSelection() {
     <>
       <Header isSticky />
       <div className="px-4 md:px-20 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-6">
 
           {/* PITCH COLUMN (mobile first) */}
           <div className="order-first lg:order-none w-full space-y-4">
             {my_team?.team?.chips && (
-              <div className="grid grid-cols sm:col-reverse sm:grid-cols-2 md:grid-cols-5 gap-1">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-1">
                 {my_team.team.chips.map(({ chip_name, used_at }) => (
                   <ChipCard
                     key={chip_name}
