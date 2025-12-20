@@ -102,7 +102,7 @@ exports.getTeamSquad = async (req, res) => {
         return res.status(500).json({ error: 'Failed to get team squad' });
     }
 };
-
+   
 
 exports.saveTeam = async (req, res) => {
     const token = req.cookies.token;
