@@ -108,9 +108,12 @@ exports.getAllLeagues = async (req , res)=>{
     
 
         const leagues = await League.getLeaguesByUser(userId)
+        
+
+        
 
         return res.json({ 
-            leagues 
+            leagues, 
         })
     }
     catch(err){
@@ -141,8 +144,8 @@ exports.getLeaguePage = async (req , res)=>{
 
         const members = await League.getLeagueMembers(id)
         
-
-        return res.json({league , members , message : 'Data fetched successfully'})
+        const isAdmin = userId === league.created_by
+        return res.json({league : {...league , isAdmin} , members , message : 'Data fetched successfully'})
         
 
 
@@ -152,4 +155,88 @@ exports.getLeaguePage = async (req , res)=>{
         console.log(err)
         return res.status(500).json({ error: 'Failed to fetch league' });
     }
+}
+
+
+exports.updateLeague = async (req , res)=>{
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: 'Session expired. Please login again.' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        const { id } = req.params
+        const { data : { name } } = req.body
+
+
+        const [league] = await League.getLeagueInfo(userId , id)
+        if (!league){
+            return res.status(404).json({error : 'League not found'})
+        }
+
+        if (userId !== league.created_by){
+            return res.status(500).json({error : 'Unauthorized ! you have not access to modify this league'})
+        }
+
+        await League.updateLeague(name , id)
+        const [leagueUpdated] = await League.getLeagueInfo(userId , id)
+
+
+        const members = await League.getLeagueMembers(id)
+        const isAdmin = userId === league.created_by
+
+        return res.json({league : {...leagueUpdated , isAdmin} , members , message : 'Data fetched successfully'})
+        
+
+
+
+    }
+
+    catch(err){
+        console.log(err)
+        return res.status(500).json({ error: 'Failed to fetch league' });
+    } 
+}
+
+
+exports.deleteById = async (req , res)=>{
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ error: 'Session expired. Please login again.' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        const { id } = req.params
+        const [league] = await League.getLeagueInfo(userId , id)
+        if (!league){
+            return res.status(404).json({error : 'League not found'})
+        }
+
+        if (userId !== league.created_by){
+            return res.status(500).json({error : 'Unauthorized ! you have not access to modify this league'})
+        }
+
+        await League.clearLeagueMembers(id)
+        await League.deleteLeague(id)
+
+
+        
+
+        return res.json({league : {} , message : 'League deleted successfully'})
+        
+
+
+
+    }
+
+    catch(err){
+        console.log(err)
+        return res.status(500).json({ error: 'Failed to delete league' });
+    } 
 }

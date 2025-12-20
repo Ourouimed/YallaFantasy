@@ -21,7 +21,7 @@ const update = async (id , data)=>{
 }
 
 const deleteByid = async (id)=>{
-    const respone = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/players/delete` , {data : {id}})
+    const respone = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/players/delete/` , {data : {id}})
     return respone.data
 }
 

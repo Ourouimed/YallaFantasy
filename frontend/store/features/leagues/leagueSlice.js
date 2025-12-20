@@ -21,9 +21,30 @@ export const joinLeague = createAsyncThunk('leagues/join' , async (id , thunkAPI
 })
 
 
+export const updateLeague = createAsyncThunk('leagues/update' , async (data , thunkAPI)=>{
+    try {
+        return await leagueService.updateLeague(data)
+    }
+    catch (err){
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
+
+
 export const getAllLeagues = createAsyncThunk('leagues/get' , async (_ , thunkAPI)=>{
     try {
         return await leagueService.getAllLeagues()
+    }
+    catch (err){
+        return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
+    }
+})
+
+
+export const deleteLeagueById = createAsyncThunk('league/delete' , async (id , thunkAPI)=>{
+    try {
+        return await leagueService.deleteLeagueById(id)
     }
     catch (err){
         return thunkAPI.rejectWithValue(err.response?.data?.error || "Unknown Error");
@@ -78,6 +99,37 @@ export const leagueSlice = createSlice({
             console.log(action.payload)
         })
         .addCase(joinLeague.rejected , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+
+
+
+        // delete league 
+        .addCase(deleteLeagueById.pending , (state)=>{
+            state.isLoading = true
+        })
+        .addCase(deleteLeagueById.fulfilled , (state , action)=>{
+            state.isLoading = false
+            state.currentLeague = {}
+            console.log(action.payload)
+        })
+        .addCase(deleteLeagueById.rejected , (state , action)=>{
+            state.isLoading = false
+            console.log(action.payload)
+        })
+
+
+            // update league 
+        .addCase(updateLeague.pending , (state)=>{
+            state.isLoading = true
+        })
+        .addCase(updateLeague.fulfilled , (state , action)=>{
+            state.isLoading = false
+            state.currentLeague = action.payload
+            console.log(action.payload)
+        })
+        .addCase(updateLeague.rejected , (state , action)=>{
             state.isLoading = false
             console.log(action.payload)
         })

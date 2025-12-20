@@ -42,7 +42,18 @@ const League ={
                                         inner join users u on ft.id_team = u.id
                                         inner join league_members lm on ft.id_team = lm.id_team where id_league = ? ` , [id])
         return rows
-    }
+    },
+    updateLeague : async (name , id)=>{
+        await db.query('Update leagues set league_name = ? where id_league = ?' , [name , id])
+    },
+    clearLeagueMembers : async (id) =>{
+        const res = await db.query('DELETE FROM league_members where id_league = ?' , [id])
+        return res
+    },
+    deleteLeague : async (id) =>{
+        const res = await db.query('DELETE FROM leagues where id_league = ?' , [id])
+        return res
+    }, 
 }
 
 module.exports = League

@@ -14,6 +14,20 @@ const joinLeague = async (id) => {
 }
 
 
+
+const updateLeague = async (data) => {
+    console.log(data)
+    const respone = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/leagues/update/${data.id}` , {data})
+    return respone.data
+}
+
+
+const deleteLeagueById = async (id) => {
+    const respone = await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/leagues/delete/${id}`)
+    return respone.data
+}
+
+
 const getLeague = async (id) => {
     const respone = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/leagues/${id}`)
     return respone.data
@@ -27,4 +41,4 @@ const getAllLeagues = async () => {
 }
 
 
-export const leagueService = { createLeague , getAllLeagues , joinLeague , getLeague}
+export const leagueService = { createLeague , getAllLeagues , joinLeague , getLeague , updateLeague , deleteLeagueById}

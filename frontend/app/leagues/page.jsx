@@ -1,6 +1,7 @@
 "use client"
 import Header from "@/components/sections/Header";
 import Button from "@/components/ui/Button";
+import LeagueCard from "@/components/ui/cards/LeagueCard";
 import { usePopup } from "@/hooks/usePopup";
 import { verifySession } from "@/store/features/auth/authSlice";
 import { getAllLeagues } from "@/store/features/leagues/leagueSlice";
@@ -71,20 +72,7 @@ export default function LeaguesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {leagues.map(l => (
-              <div
-                key={l.id_league}
-                className="flex items-center justify-between p-4 border border-gray-300 rounded-xl hover:shadow-sm transition"
-              >
-                <div>
-                  <h4 className="font-semibold text-lg">{l.league_name}</h4>
-                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Users size={16} />
-                    {l.members_count} members
-                  </div>
-                </div>
-
-                <Button className="text-sm">Open</Button>
-              </div>
+              <LeagueCard key={l.id_league} league={l}/>
             ))}
           </div>
         )}

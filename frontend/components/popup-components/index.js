@@ -14,3 +14,6 @@ export { default as EditPlayerLinupPopup } from './EditPlayerLinupPopup'
 export { default as PlayerStatsPopup } from './PlayerStatsPopup'
 export { default as CreateNewLeaguePopup } from './CreateNewLeaguePopup'
 export { default as JoinLeaguePopup } from './JoinLeaguePopup'
+export { default as EditLeaguePopup } from './EditLeaguePopup'
+export { default as DeleteLeaguePopup } from './DeleteLeaguePopup'
+
