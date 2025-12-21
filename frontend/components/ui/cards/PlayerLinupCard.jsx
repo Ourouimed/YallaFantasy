@@ -33,7 +33,7 @@ export default function PlayerLinupCard({ player , isCaptain , isViceCaptain}) {
 
       <div className="w-full rounded-md overflow-hidden">
         <div className="bg-main p-1 text-center text-white text-sm">
-          {player.fullname.split(' ')[0]}
+          {player.fullname.split(' ')[0][0] +  "." + player.fullname.split(' ')[1]}
         </div>
         <div className="bg-third p-1 text-center text-xs">
           {player.price}

@@ -5,6 +5,7 @@ import LeagueCard from "@/components/ui/cards/LeagueCard";
 import { verifySession } from "@/store/features/auth/authSlice";
 import { getAllLeagues } from "@/store/features/leagues/leagueSlice";
 import { getTeam } from "@/store/features/my-team/myTeamSlice";
+import { formatLocalTime } from "@/utils/formatDate";
 import { ArrowRightLeft, ChevronRight, ExternalLink, Shield, Shirt, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -54,16 +55,22 @@ export default function PlayPage() {
                         {!my_team?.team && <Button isLink href={'/team-selection'} className='!bg-second text-white'>Create Team</Button>}
                     </div>
 
-                    {my_team?.nextDeadline && <>
-                        <div className="flex items-center gap-3 p-4">
-                            <Button className='!bg-second !text-white flex-1' isLink href='/pick-team'>
-                                <Shirt />
-                                Pick Team
-                            </Button>
-                            <Button className='!bg-third !text-white flex-1' isLink href='/team-selection'>
-                                <ArrowRightLeft />
-                                transfers
-                            </Button>
+                    {my_team?.nextDeadline && my_team?.team && <>
+                        <div className="space-y-2">
+                            <div className="space-y-2">
+                                <h4 className="text-md font-semibold mb-3 text-center">{my_team?.nextDeadline.round_title}</h4>
+                                <span className="text-center">{formatLocalTime(my_team?.nextDeadline.round_deadline)}</span>
+                            </div>
+                            <div className="flex items-center gap-3 p-4">
+                                <Button className='!bg-second !text-white flex-1' isLink href='/pick-team'>
+                                    <Shirt />
+                                    Pick Team
+                                </Button>
+                                <Button className='!bg-third !text-white flex-1' isLink href='/team-selection'>
+                                    <ArrowRightLeft />
+                                    transfers
+                                </Button>
+                            </div>
                         </div>
                     </>}
                 </div>

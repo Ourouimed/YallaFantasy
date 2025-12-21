@@ -21,6 +21,8 @@ export default function AddPlayerToLinupPopup({ team_id , matchId , team_side}) 
     pen_missed: 0,
     min_played: 0,
     own_goals: 0,
+    gk_save : 0 ,
+    conceded_goal : 0 ,
     clean_sheets: false,
   });
 
@@ -81,6 +83,8 @@ const playersToSelect = players
           if (playerData.pen_saves < 0) errors.pen_saves = "Unvalid data";
           if (playerData.pen_missed < 0) errors.pen_missed = "Unvalid data";
           if (playerData.min_played < 0 ) errors.min_played = "Unvalid data";
+          if (playerData.gk_save < 0 ) errors.gk_save = "Unvalid data";
+          if (playerData.conceded_goal < 0 ) errors.conceded_goal = "Unvalid data";
           
   
           setValidationErrors(errors);
@@ -238,7 +242,7 @@ const playersToSelect = players
           )}
         </div>
 
-        {/* Own Goals */}
+        {/* Goal  Saves */}
         <div className="space-y-2">
           <label className="text-xs font-medium text-gray-700 uppercase">Own Goals</label>
           <Input
@@ -251,6 +255,39 @@ const playersToSelect = players
           />
           {validationErrors.own_goals && (
             <p className="text-red-600 text-sm">{validationErrors.own_goals}</p>
+          )}
+        </div>
+
+          {/* Goal  Saves */}
+         <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-700 uppercase">Goal saves</label>
+          <Input
+            type="number"
+            name="gk_save"
+            placeholder="Enter own goals"
+            value={playerData.gk_save}
+            onChange={handleChange}
+            min={0}
+          />
+          {validationErrors.gk_save && (
+            <p className="text-red-600 text-sm">{validationErrors.gk_save}</p>
+          )}
+        </div>
+
+
+         {/* conceded goals */}
+         <div className="space-y-2">
+          <label className="text-xs font-medium text-gray-700 uppercase">conceded goals</label>
+          <Input
+            type="number"
+            name="conceded_goal"
+            placeholder="Enter own goals"
+            value={playerData.conceded_goal}
+            onChange={handleChange}
+            min={0}
+          />
+          {validationErrors.conceded_goal && (
+            <p className="text-red-600 text-sm">{validationErrors.conceded_goal}</p>
           )}
         </div>
 

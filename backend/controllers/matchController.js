@@ -1,5 +1,6 @@
 const Matches = require("../models/matchs");
 const Players = require("../models/players");
+const Settings = require("../models/settings");
 
 exports.create = async (req , res)=> {
     try {
@@ -109,9 +110,11 @@ exports.addToLinup = async (req, res) => {
     goals = 0,
     pen_saves = 0,
     pen_missed = 0,
+    gk_save = 0 ,
     min_played = 0,
     own_goals = 0,
-    clean_sheets = 0
+    clean_sheets = 0 ,
+    conceded_goal = 0
   } = req.body;
 
   if (!player_id || !team_id || !match_id) {
@@ -128,40 +131,46 @@ exports.addToLinup = async (req, res) => {
 
   const playedMoreThan60 = min_played >= 60;
 
+  const [settings] = await Settings.getSettings()
+  console.log(settings)
+
   //  Points calculation 
   let totalPoints = 0;
 
   // General points
   totalPoints += playedMoreThan60 ? 2 : min_played > 0 ? 1 : 0;  
-  totalPoints -= yellow_cards * 1;
-  totalPoints -= red_card * 3;
-  totalPoints -= pen_missed * 2;
-  totalPoints -= own_goals * 2;
-  totalPoints += assists * 3;
+  totalPoints -= yellow_cards * settings.yellow_card;
+  totalPoints -= red_card * settings.red_card;
+  totalPoints -= pen_missed * settings.pen_missed;
+  totalPoints -= own_goals * settings.own_goal;
+  totalPoints += assists * settings.assist;
 
 
-  if (position === 'ATT'){
-      totalPoints += goals * 4
+  if (position === 'FWD'){
+      totalPoints += goals * settings.goal_for_FWD
   }
   else if (position === 'MID'){
-      totalPoints += goals * 5
+      totalPoints += goals * settings.goal_for_MID
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 1
+        totalPoints += settings.clean_sheets_mid
       }
   }
 
   else if (position === 'DEF'){
-      totalPoints += goals * 6
+      totalPoints += goals * settings.goal_for_DEF
+      totalPoints -= settings.conceded_goal * Math.floor(conceded_goal / 2)
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 4
+        totalPoints += settings.clean_sheets_def
       }
   }
 
   else if (position === 'GK'){
-      totalPoints += goals * 8
-      totalPoints += pen_saves * 5;
+      totalPoints += goals * settings.goal_for_GK
+      totalPoints += pen_saves * settings.pen_saves;
+      totalPoints -= settings.conceded_goal * Math.floor(conceded_goal / 2)
+      totalPoints += settings.gk_save * Math.floor(gk_save / 3)
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 4
+        totalPoints += settings.clean_sheets_gk
       }
   }
 
@@ -180,7 +189,9 @@ exports.addToLinup = async (req, res) => {
       own_goals,
       clean_sheets,
       totalPoints ,
-      position
+      position ,
+      gk_save , 
+      conceded_goal
     );
 
     const [playerAddedToLinup ] = await Matches.getPlayerFromLinup(match_id , team_id , player_id)
@@ -202,11 +213,13 @@ exports.updateLinupPlayer = async (req, res) => {
     yellow_cards = 0,
     assists = 0,
     goals = 0,
+    gk_save = 0 ,
     pen_saves = 0,
     pen_missed = 0,
     min_played = 0,
     own_goals = 0,
-    clean_sheets = 0
+    clean_sheets = 0,
+    conceded_goal = 0
   } = req.body;
 
 
@@ -226,40 +239,47 @@ exports.updateLinupPlayer = async (req, res) => {
 
   const playedMoreThan60 = min_played >= 60;
 
+  const [settings] = await Settings.getSettings()
+  
+
   //  Points calculation 
   let totalPoints = 0;
 
   // General points
   totalPoints += playedMoreThan60 ? 2 : min_played > 0 ? 1 : 0;  
-  totalPoints -= yellow_cards * 1;
-  totalPoints -= red_card * 3;
-  totalPoints -= pen_missed * 2;
-  totalPoints -= own_goals * 2;
-  totalPoints += assists * 3;
+  totalPoints -= yellow_cards * settings.yellow_card;
+  totalPoints -= red_card * settings.red_card;
+  totalPoints -= pen_missed * settings.pen_missed;
+  totalPoints -= own_goals * settings.own_goal;
+  totalPoints += assists * settings.assist;
 
 
-  if (position === 'ATT'){
-      totalPoints += goals * 4
+  if (position === 'FWD'){
+      totalPoints += goals * settings.goal_for_FWD
   }
   else if (position === 'MID'){
-      totalPoints += goals * 5
+      totalPoints += goals * settings.goal_for_MID
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 1
+        totalPoints += settings.clean_sheets_mid
       }
   }
 
   else if (position === 'DEF'){
-      totalPoints += goals * 6
+      totalPoints += goals * settings.goal_for_DEF
+      totalPoints -= settings.conceded_goal * Math.floor(conceded_goal / 2)
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 4
+        totalPoints += settings.clean_sheets_def
       }
+      
   }
 
   else if (position === 'GK'){
-      totalPoints += goals * 8
-      totalPoints += pen_saves * 5;
+      totalPoints += goals * settings.goal_for_GK
+      totalPoints += pen_saves * settings.pen_saves;
+      totalPoints -= settings.conceded_goal * Math.floor(conceded_goal / 2)
+      totalPoints += settings.gk_save * Math.floor(gk_save / 3)
       if(clean_sheets && playedMoreThan60){
-        totalPoints += 4
+        totalPoints += settings.clean_sheets_gk
       }
   }
 
@@ -278,7 +298,9 @@ exports.updateLinupPlayer = async (req, res) => {
       own_goals,
       clean_sheets,
       totalPoints ,
-      position
+      position , 
+      gk_save ,
+      conceded_goal
     );
 
     const [playerAddedToLinup ] = await Matches.getPlayerFromLinup(match_id , team_id , player_id)

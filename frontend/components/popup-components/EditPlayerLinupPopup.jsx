@@ -22,6 +22,8 @@ export default function EditPlayerLinupPopup({player , team_side}) {
     min_played: player.min_played,
     own_goals: player.own_goals,
     clean_sheets: player.clean_sheets,
+    gk_save: player.gk_save,
+    conceded_goal : player.conceded_goal
   });
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -52,6 +54,8 @@ export default function EditPlayerLinupPopup({player , team_side}) {
           if (playerDataToEdit.pen_saves < 0) errors.pen_saves = "Unvalid data";
           if (playerDataToEdit.pen_missed < 0) errors.pen_missed = "Unvalid data";
           if (playerDataToEdit.min_played < 0 ) errors.min_played = "Unvalid data";
+          if (playerDataToEdit.gk_save < 0 ) errors.gk_save = "Unvalid data";
+          if (playerDataToEdit.conceded_goal < 0 ) errors.conceded_goal = "Unvalid data";
           
   
           setValidationErrors(errors);
@@ -222,6 +226,38 @@ export default function EditPlayerLinupPopup({player , team_side}) {
           )}
         </div>
 
+                    {/* Goal  Saves */}
+                   <div className="space-y-2">
+                    <label className="text-xs font-medium text-gray-700 uppercase">Goal saves</label>
+                    <Input
+                      type="number"
+                      name="gk_save"
+                      placeholder="Enter own goals"
+                      value={playerDataToEdit.gk_save}
+                      onChange={handleChange}
+                      min={0}
+                    />
+                    {validationErrors.gk_save && (
+                      <p className="text-red-600 text-sm">{validationErrors.gk_save}</p>
+                    )}
+                  </div>
+
+
+                   {/* conceded goals */}
+                           <div className="space-y-2">
+                            <label className="text-xs font-medium text-gray-700 uppercase">conceded goals</label>
+                            <Input
+                              type="number"
+                              name="conceded_goal"
+                              placeholder="Enter own goals"
+                              value={playerDataToEdit.conceded_goal}
+                              onChange={handleChange}
+                              min={0}
+                            />
+                            {validationErrors.conceded_goal && (
+                              <p className="text-red-600 text-sm">{validationErrors.conceded_goal}</p>
+                            )}
+                          </div>
         {/* Clean Sheets */}
         <div className="space-y-2 col-span-1">
           <Switch
@@ -235,6 +271,9 @@ export default function EditPlayerLinupPopup({player , team_side}) {
             <p className="text-red-600 text-sm">{validationErrors.clean_sheets}</p>
           )}
         </div>
+
+
+        
       </div>
 
 

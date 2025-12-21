@@ -45,11 +45,12 @@ const Matches ={
       own_goals ,
       clean_sheets ,
       round_pts = 0 ,
-      player_position
+      player_position ,
+      gk_save , conceded_goal
   ) =>{
         await db.query(`INSERT INTO linup 
-            (player_id , team_id , match_id , red_card ,yellow_cards ,assists ,goals ,pen_saves ,pen_missed ,min_played ,own_goals ,clean_sheets , round_pts , player_position)
-            VALUES (? , ? , ?  , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)` , [player_id , 
+            (player_id , team_id , match_id , red_card ,yellow_cards ,assists ,goals ,pen_saves ,pen_missed ,min_played ,own_goals ,clean_sheets , round_pts , player_position , gk_save , conceded_goal)
+            VALUES (? , ? , ?  , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ? , ?)` , [player_id , 
       team_id , 
       match_id , 
       red_card ,
@@ -61,7 +62,10 @@ const Matches ={
       min_played ,
       own_goals ,
       clean_sheets ,
-    round_pts ,  player_position])
+      round_pts ,  
+      player_position,
+      gk_save , 
+      conceded_goal])
     } ,
 
     getLinup : async (team_id ,  match_id)=>{
@@ -92,7 +96,8 @@ const Matches ={
   own_goals,
   clean_sheets,
   round_pts = 0,
-  player_position
+  player_position ,
+  gk_save , conceded_goal
 ) => {
   await db.query(
     `UPDATE linup SET
@@ -106,7 +111,9 @@ const Matches ={
       own_goals = ?,
       clean_sheets = ?,
       round_pts = ?,
-      player_position = ?
+      player_position = ? ,
+      gk_save = ?,
+      conceded_goal = ?
      WHERE player_id = ? AND team_id = ? AND match_id = ?`,
     [
       red_card,
@@ -120,9 +127,11 @@ const Matches ={
       clean_sheets,
       round_pts,
       player_position,
+      gk_save ,
+      conceded_goal,
       player_id,
       team_id,
-      match_id
+      match_id ,
     ]
   );
 }

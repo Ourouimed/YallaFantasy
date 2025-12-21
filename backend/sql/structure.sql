@@ -138,3 +138,6 @@ create table league_members (
     FOREIGN key (id_league) REFERENCES leagues(id_league),
     FOREIGN key (id_team) REFERENCES users(id_team)
 );
+
+
+

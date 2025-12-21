@@ -171,6 +171,8 @@ export default function TeamSelection() {
         point_hit: transferStats.pointHit,
         transfers_made: transferStats.playersOutCount,
       };
+
+
       await dispatch(saveTeam(payload)).unwrap();
       toast.success("Team saved successfully");
     } catch (err) {

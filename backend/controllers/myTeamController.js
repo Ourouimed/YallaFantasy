@@ -9,7 +9,6 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 exports.getTeamSquad = async (req, res) => {
     const token = req.cookies.token;
-
     if (!token) {
         return res.status(401).json({ error: 'Session expired. Please login again.' });
     }
@@ -20,7 +19,6 @@ exports.getTeamSquad = async (req, res) => {
 
         const rounds = await Rounds.getAllrounds();
         const { nextRound, prevRound } = getDeadlines(rounds);
-
         if (!nextRound) return res.json(null);
 
         const [team] = await MyTeam.getTeamDetaills(userId);
@@ -28,17 +26,19 @@ exports.getTeamSquad = async (req, res) => {
             return res.json({
                 team: null,
                 nextDeadline: nextRound,
-                PrevDeadline: prevRound,
+                PrevDeadline: prevRound,    
+                unlimited_transfers: true,
                 players: { GK: [], DEF: [], MID: [], FWD: [] }
             });
         }
 
         let nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id, userId);
 
+
+
         // LOGIC: If next round is empty, copy from previous round
         if (nextRoundSquad.length === 0) {
-            const prevRoundSquad = await MyTeam.getTeamSquad(prevRound?.round_id, userId);
-
+            const prevRoundSquad = await MyTeam.getLastInsertedSquad(nextRound?.round_deadline, userId);
             if (prevRoundSquad.length === 0) {
                 return res.json({
                     team: { team_name: team.team_name, balance: 100, unlimited_transfers: true, free_transfers: 0 },
@@ -51,14 +51,7 @@ exports.getTeamSquad = async (req, res) => {
             // Map and save previous squad to next round (Preserving is_starter)
             await Promise.all(
                 prevRoundSquad.map(p => 
-                    MyTeam.savePlayer(
-                        userId, 
-                        p.player_id, 
-                        p.national_team, 
-                        nextRound.round_id, 
-                        p.purchased_price, 
-                        p.starting_linup 
-                    )
+                    MyTeam.savePlayer(userId , p.player_id , nextRound.round_id , p.starting_linup , p.role)
                 )
             );
 
@@ -67,8 +60,9 @@ exports.getTeamSquad = async (req, res) => {
             nextRoundSquad = await MyTeam.getTeamSquad(nextRound.round_id, userId);
         }
 
+
         // Helper to format response data
-        const playersPrices = nextRoundSquad.map(e => Number(e.purchased_price));
+        const playersPrices = nextRoundSquad.map(e => Number(e.price));
         const teamValue = playersPrices.reduce((a, b) => a + b, 0);
         
         const players = {
@@ -83,6 +77,23 @@ exports.getTeamSquad = async (req, res) => {
 
         const [updatedTeam] = await MyTeam.getTeamDetaills(userId);
         const unlimited_transfers = (nextRound.round_id === updatedTeam.start_at);
+
+
+        let totalPts = 0
+        if (prevRound) {
+            // Get prev dedaline match total pts 
+            const playersPts = await MyTeam.getPrevDeadlineForm(userId , prevRound.round_id)
+            let isPlayed
+            if (updatedTeam.bench_boost === prevRound.round_id){
+                isPlayed = playersPts.filter(p=> p.round_pts != null)
+            }
+            else {
+                isPlayed = playersPts.filter(p=> p.starting_linup).filter(p=> p.round_pts != null)
+            }
+
+            
+            
+        }
 
         return res.json({
             team: { 
@@ -136,7 +147,7 @@ exports.saveTeam = async (req, res) => {
         };
 
         const flatPlayers = preparePlayers();
-        const teamValue = flatPlayers.reduce((acc, p) => acc + Number(p.price || p.purchased_price), 0);
+        const teamValue = flatPlayers.reduce((acc, p) => acc + Number(p.price), 0);
         const [savedTeam] = await MyTeam.getTeamDetaills(userId);
 
         // 1. If Team Exists - Update Transfers and Squad
@@ -147,10 +158,20 @@ exports.saveTeam = async (req, res) => {
                 await MyTeam.reducePoints(point_hit, userId);
             }
 
+            console.log(flatPlayers)
+
+            let captain = flatPlayers.find(p => p.role ==='captain').player_id
+            let vice_captain = flatPlayers.find(p => p.role ==='vice_captain').player_id
+
             await MyTeam.clearSquad(nextRound.round_id, userId);
             await Promise.all(
                 flatPlayers.map(p => 
-                    MyTeam.savePlayer(userId, p.player_id, p.national_team, nextRound.round_id, (p.price || p.purchased_price), p.is_starter)
+                    MyTeam.savePlayer(userId, p.player_id , nextRound.round_id, p.is_starter , 
+                        p.player_id === captain ? 'captain' :
+                        p.player_id === vice_captain ? 'vice_captain' :
+                        'normal'
+                    )
+            
                 )
             );
         } 
@@ -159,11 +180,16 @@ exports.saveTeam = async (req, res) => {
             const captain = FWD[0]?.player_id || MID[0]?.player_id;
             const vice_captain = MID[0]?.player_id || DEF[0]?.player_id;
             
-            await MyTeam.createTeam(userId, team_name, nextRound.round_id, captain, vice_captain);
+            console.log(flatPlayers)
+            await MyTeam.createTeam(userId, team_name, nextRound.round_id);
             await Promise.all(
-                flatPlayers.map(p => 
-                    MyTeam.savePlayer(userId, p.player_id, p.national_team, nextRound.round_id, p.price, p.is_starter)
-                )
+                flatPlayers.map(p => {
+                    return MyTeam.savePlayer(userId, p.player_id , nextRound.round_id, p.is_starter , 
+                        p.player_id === captain ? 'captain' :
+                        p.player_id === vice_captain ? 'vice_captain' :
+                        'normal'
+                    )
+                })
             );
         }
 
@@ -220,6 +246,9 @@ exports.getPickedTeam = async (req , res)=>{
         const bench = PickedTeam.filter(e => !e.starting_linup)
 
 
+        
+
+
 
 
         const players = {startingLinup , bench}
@@ -232,7 +261,11 @@ exports.getPickedTeam = async (req , res)=>{
 
 
         const unlimited_transfers = (nextRound.round_id === team.start_at);
-        return res.json({team : { team_name : team.team_name  , chips : chipsArray , captain : team.captain , vice_captain : team.vice_captain , unlimited_transfers} , players, nextDeadline : nextRound})
+
+        let captain = players.startingLinup.find(p => p.role=== 'captain').id_player
+        let vice_captain = players.startingLinup.find(p => p.role === 'vice_captain').id_player
+
+        return res.json({team : { team_name : team.team_name  , chips : chipsArray , captain , vice_captain , unlimited_transfers} , players, nextDeadline : nextRound})
 
         
 
@@ -262,10 +295,13 @@ exports.savePickedTeam = async (req , res)=>{
 
 
         const { players : {startingLinup , bench} , team : { captain , vice_captain}} = req.body
-        await MyTeam.makeCaptain(captain , userId)
+        
+
+        await MyTeam.setRoleAll('normal' , userId)
+        await MyTeam.setRole('captain' , captain , userId)
+        await MyTeam.setRole('vice_captain' , vice_captain, userId)
 
 
-        await MyTeam.makeViceCaptain(vice_captain , userId)
         await Promise.all(
             startingLinup.map(p=>{
                 MyTeam.isStarter(p.round_id , p.id_player , p.id_team , true)
