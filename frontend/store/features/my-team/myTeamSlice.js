@@ -36,6 +36,7 @@ export const savePickedTeam = createAsyncThunk('my-team/pick-team/save' , async 
 
 export const getPickedTeam = createAsyncThunk('my-team/pick-team' , async (data , thunkAPI)=>{
     try {
+        console.log('Test')
         return await myTeamService.getPickedTeam()
     }
     catch (err){
