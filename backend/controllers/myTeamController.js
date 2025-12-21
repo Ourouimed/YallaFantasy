@@ -273,7 +273,7 @@ exports.getPickedTeam = async (req , res)=>{
     }
     catch (err) {
         console.error(err);
-        return res.status(500).json({ error: 'Failed to save team squad' });
+        return res.status(500).json({ err ,error: 'Failed to fetch squad' });
     }
 }
 
